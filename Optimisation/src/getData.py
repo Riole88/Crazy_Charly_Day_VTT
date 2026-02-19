@@ -1,6 +1,6 @@
 from src.opti_boxes import Toy, Child
 
-FICHIER_DONNEES = "../donnees/03_pb_complexes/pb5.csv"
+FICHIER_DONNEES = "../donnees/02_pb_simples/pb1.csv"
 articles = []
 abonnes = []
 massMax = 0

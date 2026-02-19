@@ -1,68 +1,78 @@
 from opti_boxes import Box, Toy, ProblemState, Child
 import getData
 from EvalSolution import EvalSolution
+from src.Algorithme import Algorithme
 
 EVAL = EvalSolution()
 
-def resolve_problem(problem : ProblemState) -> ProblemState :
-    possibleActions = problem.getPossibleActions()
-    scoreMax : int = EvalSolution().evaluate(problem.boxes)
-    bestState : ProblemState = problem
+class AlgoUCS(Algorithme):
 
-    #print("boxes length : ", len(bestState.boxes))
+    def __init__(self):
+        super().__init__()
 
-    for action in possibleActions :
-        newLists = problem.doAction(action[0], action[1])
-        newState = ProblemState(newLists[0], newLists[1])
-        score : int = EvalSolution().evaluate(newState.boxes)
-        #print("boxes : ", newState.boxes)
-        #print("boxes length : ", len(newState.boxes))
-        if score >= scoreMax:
-            print("score : ", score)
-            scoreMax = score
-            bestState = newState
+    def run(self) -> str:
+        return self.main()
 
-    return bestState
+    def resolve_problem(self, problem : ProblemState) -> ProblemState :
+        possibleActions = problem.getPossibleActions()
+        scoreMax : int = EVAL.evaluate(problem.boxes)
+        EVAL.reset_score()
+        bestState : ProblemState = problem
 
+        #print("boxes length : ", len(bestState.boxes))
 
-def main():
+        for action in possibleActions :
+            newLists = problem.doAction(action[0], action[1])
+            newState = ProblemState(newLists[0], newLists[1])
+            score : int = EVAL.evaluate(newState.boxes)
+            EVAL.reset_score()
+            #print("boxes : ", newState.boxes)
+            #print("boxes length : ", len(newState.boxes))
+            if score >= scoreMax:
+                print("score : ", score)
+                scoreMax = score
+                bestState = newState
 
-    d = getData
-    d.get_data()
-    abonnes = d.getAbonnes()
-    articles = d.getArticles()
-    massMax = d.getMassMax()
-    print(massMax)
-
-    listBoxes : list[Box] = []
-
-    for abonne in abonnes :
-        listBoxes.append(Box(abonne, massMax))
-
-    problemToSolve : ProblemState = ProblemState(listBoxes, articles)
-
-    solution : ProblemState = resolve_problem(problemToSolve)
-
-    eval : EvalSolution = EvalSolution()
-
-    oldScore : int = -999999
-    newScore : int =eval.evaluate(solution.boxes)
-
-    while oldScore != newScore :
-        oldScore = newScore
-        eval.reset_score()
-        solution = resolve_problem(solution)
-        newScore = eval.evaluate(solution.boxes)
-
-    print("score max : ",newScore)
-    print("solution : ")
-    for box in solution.boxes :
-        print("box de : ", box.childBelonging.id, ", ", box.childBelonging.age)
-        for toy in box.toys :
-            print("\t-", toy.id, toy.age, ", ", toy.category, ",", toy.mass, ", ", toy.state)
+        return bestState
 
 
-if __name__ == "__main__":
-    main()
+    def main(self) -> str:
+
+        d = getData
+        d.get_data()
+        abonnes = d.getAbonnes()
+        articles = d.getArticles()
+        massMax = d.getMassMax()
+        print(massMax)
+
+        listBoxes : list[Box] = []
+
+        for abonne in abonnes :
+            listBoxes.append(Box(abonne, massMax))
+
+        problemToSolve : ProblemState = ProblemState(listBoxes, articles)
+
+        solution : ProblemState = self.resolve_problem(problemToSolve)
+
+        eval : EvalSolution = EvalSolution()
+
+        oldScore : int = -999999
+        newScore : int =eval.evaluate(solution.boxes)
+
+        while oldScore != newScore :
+            oldScore = newScore
+            eval.reset_score()
+            solution = self.resolve_problem(solution)
+            newScore = eval.evaluate(solution.boxes)
+
+        res : str = str(newScore) + "\n"
+
+        for box in solution.boxes :
+            for toy in box.toys :
+                res += box.childBelonging.id+ ";"+ toy.id+ ";"+ toy.category+ ";"+ toy.age+ ";"+ toy.state+"\n"
+
+        return res
 
 
+if __name__ == "__main__" :
+    print(AlgoUCS().run())

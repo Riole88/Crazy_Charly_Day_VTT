@@ -8,7 +8,7 @@ use api\dtos\ArticleDTO;
 use api\dtos\CreateArticleDTO;
 use api\dtos\ModifyArticleDTO;
 use application_core\application\usecases\interfaces\ServiceArticleInterface;
-use EntityNotFoundException;
+use application_core\exceptions\EntityNotFoundException;
 use infrastructure\repositories\interfaces\ArticleRepositoryInterface;
 
 class ServiceArticle implements ServiceArticleInterface {

@@ -1,10 +1,20 @@
-<script setup></script>
+<script setup>
+import { useAuth } from '@/composables/useAuth'
+
+const { isAuthenticated } = useAuth()
+</script>
 
 <template>
   <div class="container">
     <h1>Bienvenue sur Crazy Charly Day</h1>
-    <p>Connecte-toi pour commencer à jouer.</p>
-    <RouterLink to="/login">Se connecter</RouterLink>
+    <template v-if="!isAuthenticated">
+      <p>Connecte-toi pour commencer à jouer.</p>
+      <RouterLink to="/login">Se connecter</RouterLink>
+    </template>
+    <template v-else>
+      <p>Bonne continuation sur la plateforme !</p>
+      <RouterLink to="/articles">Voir le catalogue</RouterLink>
+    </template>
   </div>
 </template>
 

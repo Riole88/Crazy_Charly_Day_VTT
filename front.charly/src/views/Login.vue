@@ -1,17 +1,44 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useAuth } from '@/composables/useAuth'
 
+const API = import.meta.env.VITE_API
 const router = useRouter()
+const { setToken } = useAuth()
 
 const form = ref({
   email: '',
   password: '',
 })
 
-function handleSubmit() {
-  console.log('Login:', form.value)
-  // TODO: appel API /api/login
+const loading = ref(false)
+const error = ref('')
+
+async function handleSubmit() {
+  error.value = ''
+  loading.value = true
+
+  try {
+    const res = await fetch(`${API}/signin`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(form.value),
+    })
+
+    const data = await res.json()
+
+    if (!res.ok) {
+      throw new Error(data.error ?? 'Identifiants invalides')
+    }
+
+    setToken(data.token, data.type)
+    router.push('/home')
+  } catch (e) {
+    error.value = e.message
+  } finally {
+    loading.value = false
+  }
 }
 </script>
 
@@ -30,7 +57,11 @@ function handleSubmit() {
         <input v-model="form.password" type="password" placeholder="••••••••" required />
       </div>
 
-      <button type="submit">Se connecter</button>
+      <p v-if="error" class="error">{{ error }}</p>
+
+      <button type="submit" :disabled="loading">
+        {{ loading ? 'Connexion...' : 'Se connecter' }}
+      </button>
     </form>
 
     <p class="toggle">

@@ -1,265 +1,168 @@
 <script setup>
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 
-const categories = ref([
-  { code: 'SOC', label: 'Jeux de société' },
-  { code: 'FIG', label: 'Figurines et poupées' },
-  { code: 'CON', label: 'Jeux de construction' },
-  { code: 'EXT', label: "Jeux d'extérieur" },
-  { code: 'EVL', label: "Jeux d'éveil et éducatifs" },
-  { code: 'LIV', label: 'Livres jeunesse' },
-])
-
-const tranches = [
-  { code: 'BB', label: 'BB — 0-3 ans (bébé)' },
-  { code: 'PE', label: 'PE — 3-6 ans (petit enfant)' },
-  { code: 'EN', label: 'EN — 6-10 ans (enfant)' },
-  { code: 'AD', label: 'AD — 10+ ans (adolescent)' },
-]
+const API = import.meta.env.VITE_API
+const router = useRouter()
 
 const form = ref({
-  nom: '',
-  prenom: '',
+  firstName: '',
+  lastName: '',
   email: '',
-  tranche: '',
+  password: '',
+  confirmPassword: '',
 })
 
-function moveUp(index) {
-  if (index === 0) return
-  const arr = categories.value
-  ;[arr[index - 1], arr[index]] = [arr[index], arr[index - 1]]
-}
-
-function moveDown(index) {
-  if (index === categories.value.length - 1) return
-  const arr = categories.value
-  ;[arr[index + 1], arr[index]] = [arr[index], arr[index + 1]]
-}
-
-const submitted = ref(false)
+const loading = ref(false)
 const error = ref('')
+const submitted = ref(false)
 
 async function handleSubmit() {
   error.value = ''
-  if (!form.value.tranche) {
-    error.value = "Veuillez sélectionner la tranche d'âge de votre enfant."
+
+  if (form.value.password !== form.value.confirmPassword) {
+    error.value = 'Les mots de passe ne correspondent pas.'
     return
   }
 
-  const payload = {
-    nom: form.value.nom,
-    prenom: form.value.prenom,
-    email: form.value.email,
-    tranche: form.value.tranche,
-    preferences: categories.value.map((c) => c.code),
-  }
+  loading.value = true
 
   try {
-    const res = await fetch('/api/abonnes', {
+    const res = await fetch(`${API}/signup`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
+      body: JSON.stringify({
+        email: form.value.email,
+        password: form.value.password,
+        firstName: form.value.firstName,
+        lastName: form.value.lastName,
+      }),
     })
-    if (!res.ok) throw new Error('Erreur serveur')
+
+    const data = await res.json()
+
+    if (!res.ok) {
+      throw new Error(data.error ?? 'Erreur lors de l\'inscription')
+    }
+
     submitted.value = true
   } catch (e) {
-    error.value = "Une erreur est survenue. Veuillez réessayer."
-    console.error(e)
+    error.value = e.message
+  } finally {
+    loading.value = false
   }
 }
 </script>
 
 <template>
   <div class="container">
-    <h2>Inscription abonné</h2>
+    <h2>Créer un compte</h2>
 
     <div v-if="submitted" class="success">
-      Inscription enregistrée ! Votre box sera composée prochainement.
+      Compte créé avec succès !
+      <div class="success-actions">
+        <button @click="router.push('/login')">Se connecter</button>
+      </div>
     </div>
 
     <form v-else @submit.prevent="handleSubmit">
-      <!-- Identité -->
-      <fieldset>
-        <legend>Vos informations</legend>
-
-        <div class="field">
-          <label>Nom</label>
-          <input v-model="form.nom" type="text" placeholder="Dupont" required />
-        </div>
-
+      <div class="row">
         <div class="field">
           <label>Prénom</label>
-          <input v-model="form.prenom" type="text" placeholder="Marie" required />
+          <input v-model="form.firstName" type="text" placeholder="Marie" required />
         </div>
-
         <div class="field">
-          <label>Email</label>
-          <input v-model="form.email" type="email" placeholder="marie@exemple.com" required />
+          <label>Nom</label>
+          <input v-model="form.lastName" type="text" placeholder="Dupont" required />
         </div>
-      </fieldset>
+      </div>
 
-      <!-- Tranche d'âge -->
-      <fieldset>
-        <legend>Tranche d'âge de votre enfant</legend>
-        <div class="radio-group">
-          <label v-for="t in tranches" :key="t.code">
-            <input v-model="form.tranche" type="radio" :value="t.code" />
-            {{ t.label }}
-          </label>
-        </div>
-      </fieldset>
+      <div class="field">
+        <label>Email</label>
+        <input v-model="form.email" type="email" placeholder="marie@exemple.com" required />
+      </div>
 
-      <!-- Préférences -->
-      <fieldset>
-        <legend>Ordre de préférence des catégories</legend>
-        <p class="hint">Classez les catégories de la plus souhaitée à la moins souhaitée.</p>
+      <div class="field">
+        <label>Mot de passe</label>
+        <input v-model="form.password" type="password" placeholder="••••••••" required />
+      </div>
 
-        <ul class="pref-list">
-          <li v-for="(cat, index) in categories" :key="cat.code">
-            <span class="rank">{{ index + 1 }}</span>
-            <span class="cat-label">{{ cat.label }} <small>({{ cat.code }})</small></span>
-            <div class="actions">
-              <button type="button" @click="moveUp(index)" :disabled="index === 0">▲</button>
-              <button type="button" @click="moveDown(index)" :disabled="index === categories.length - 1">▼</button>
-            </div>
-          </li>
-        </ul>
-      </fieldset>
+      <div class="field">
+        <label>Confirmer le mot de passe</label>
+        <input v-model="form.confirmPassword" type="password" placeholder="••••••••" required />
+      </div>
 
       <p v-if="error" class="error">{{ error }}</p>
 
-      <button type="submit" class="submit-btn">S'inscrire</button>
+      <button type="submit" class="btn-submit" :disabled="loading">
+        {{ loading ? 'Création...' : 'Créer mon compte' }}
+      </button>
     </form>
+
+    <p class="toggle">
+      Déjà un compte ?
+      <a href="#" @click.prevent="router.push('/login')">Se connecter</a>
+    </p>
   </div>
 </template>
 
 <style scoped>
 .container {
-  max-width: 520px;
-  margin: 40px auto;
+  max-width: 460px;
+  margin: 60px auto;
   padding: 30px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
 }
 
 h2 {
   margin-bottom: 24px;
 }
 
-fieldset {
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  padding: 16px;
-  margin-bottom: 20px;
-}
-
-legend {
-  font-weight: bold;
-  padding: 0 8px;
+.row {
+  display: flex;
+  gap: 16px;
 }
 
 .field {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  margin-bottom: 14px;
+  margin-bottom: 16px;
+  flex: 1;
 }
 
 label {
+  font-weight: bold;
   font-size: 14px;
 }
 
-input[type='text'],
-input[type='email'] {
+input {
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 4px;
   font-size: 14px;
 }
 
-.radio-group {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.radio-group label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-}
-
-.hint {
-  font-size: 13px;
-  color: #666;
-  margin-bottom: 12px;
-}
-
-.pref-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.pref-list li {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 8px 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  background: #fafafa;
-}
-
-.rank {
-  font-weight: bold;
-  min-width: 20px;
-  color: #333;
-}
-
-.cat-label {
-  flex: 1;
-  font-size: 14px;
-}
-
-.cat-label small {
-  color: #888;
-}
-
-.actions {
-  display: flex;
-  gap: 6px;
-}
-
-.actions button {
-  padding: 4px 8px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  background: white;
-  cursor: pointer;
-  font-size: 12px;
-}
-
-.actions button:disabled {
-  opacity: 0.3;
-  cursor: default;
-}
-
-.submit-btn {
+.btn-submit {
   width: 100%;
-  padding: 12px;
+  padding: 10px;
+  margin-top: 8px;
   background: #333;
   color: white;
   border: none;
   border-radius: 4px;
-  font-size: 15px;
   cursor: pointer;
+  font-size: 15px;
 }
 
-.submit-btn:hover {
+.btn-submit:hover:not(:disabled) {
   background: #555;
+}
+
+.btn-submit:disabled {
+  opacity: 0.6;
+  cursor: default;
 }
 
 .success {
@@ -270,6 +173,30 @@ input[type='email'] {
   background: #f1f8f1;
 }
 
+.success-actions {
+  margin-top: 14px;
+}
+
+.success-actions button {
+  padding: 8px 16px;
+  border: 1px solid #4caf50;
+  border-radius: 4px;
+  background: white;
+  cursor: pointer;
+  color: #2e7d32;
+}
+
+.toggle {
+  margin-top: 20px;
+  text-align: center;
+  font-size: 14px;
+}
+
+.toggle a {
+  color: #333;
+  font-weight: bold;
+}
+
 .error {
   color: #c62828;
   font-size: 14px;
@@ -277,9 +204,6 @@ input[type='email'] {
 }
 
 @media (max-width: 600px) {
-  .container {
-    padding: 16px;
-    margin: 10px;
-  }
+  .row { flex-direction: column; }
 }
 </style>

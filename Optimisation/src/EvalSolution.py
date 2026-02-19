@@ -98,7 +98,13 @@ class EvalSolution:
         :param solution: La solution proposée
         :return: Le score de la solution par rapport à cette règle
         """
-        raise NotImplementedError("R5")
+        for box in solution:
+            for toy in box.toys:
+                match toy.state:
+                    case "N": self.score += 2
+                    case "TB": self.score += 1
+                    case _: continue
+
 
     def r6(self, solution : list[Box]) -> None:
         """

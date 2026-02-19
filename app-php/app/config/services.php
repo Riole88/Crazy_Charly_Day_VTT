@@ -1,6 +1,7 @@
 <?php
 
 use api\actions\SignInAction;
+use api\actions\SignUpAction;
 use application_core\application\usecases\interfaces\ServiceArticleInterface;
 use application_core\application\usecases\ServiceArticle;
 use application_core\application\usecases\interfaces\AuthServiceInterface;
@@ -19,6 +20,11 @@ return [
     // Ajout explicite de l'Action pour garantir l'injection correcte
     SignInAction::class => function (ContainerInterface $c) {
         return new SignInAction($c->get(AuthServiceInterface::class));
+    },
+    
+    // Ajout explicite de SignUpAction
+    SignUpAction::class => function (ContainerInterface $c) {
+        return new SignUpAction($c->get(AuthServiceInterface::class));
     },
 
     ServiceArticleInterface::class => function (ContainerInterface $c) {

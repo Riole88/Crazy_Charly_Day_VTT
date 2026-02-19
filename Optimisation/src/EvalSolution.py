@@ -9,9 +9,9 @@ class EvalSolution:
         self.score : int = 0
 
     def evaluate(self, solution : list[Box]) -> int:
-        if not self.r1(solution) or not self.r2(solution):
+        if not self.r1(solution) or not self.r2(solution) or not self.r3(solution):
             return -9999
-        self.score += self.r3(solution)
+
         self.score += self.r4(solution)
         self.score += self.r5(solution)
         self.score += self.r6(solution)
@@ -53,7 +53,7 @@ class EvalSolution:
 
         return True
 
-    def r3(self, solution : list[Box]) -> int:
+    def r3(self, solution : list[Box]) -> bool:
         """
         Poids limité
         Le poids total des articles contenus dans une box ne doit pas
@@ -61,7 +61,11 @@ class EvalSolution:
         :param solution: La solution proposée
         :return: Le score de la solution par rapport à cette règle
         """
-        raise NotImplementedError("R3")
+        for box in solution:
+            if box.totalMass > box.maximumMass:
+                return False
+
+        return True
 
     def r4(self, solution : list[Box]) -> int:
         """

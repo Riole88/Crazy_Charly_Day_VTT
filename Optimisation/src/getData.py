@@ -20,11 +20,11 @@ def get_data ():
         else :
             match selector :
                 case 0 :
-                    article = Toy(l[6],l[5],l[2],l[3])
+                    article = Toy(l[0],int(l[6]),int(l[5]),l[2],l[3])
                     articles.append(article)
                 case 1 :
                     preferences =[l[3],l[4],l[5],l[6],l[7],l[8]]
-                    abonne = Child(l[2],preferences)
+                    abonne = Child(l[0],l[2],preferences)
                     abonnes.append(abonne)
                 case 2 :
-                    massMax = ligne
+                    massMax = int(ligne)

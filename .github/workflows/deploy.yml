@@ -13,7 +13,7 @@ env:
   REGION: europe-west1
   REPOSITORY: charly-repo
   # Remplace par ton numéro de projet et le nom de ton pool/provider
-  WIF_PROVIDER: projects/NUMBER/locations/global/workloadIdentityPools/mon-pool-id/providers/mon-provider-id
+  WIF_PROVIDER: projects/254119556953/locations/global/workloadIdentityPools/mon-pool-id/providers/mon-provider-id
   SA_EMAIL: github-deployer@project-28d5f176-6eec-4cb0-a0c.iam.gserviceaccount.com
 
 jobs:

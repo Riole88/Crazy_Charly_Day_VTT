@@ -41,3 +41,5 @@ __screenshots__/
 
 #Environnement
 *.env
+
+*vendor

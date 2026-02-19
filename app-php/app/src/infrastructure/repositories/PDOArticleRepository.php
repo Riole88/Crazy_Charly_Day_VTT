@@ -2,10 +2,12 @@
 
 namespace infrastructure\repositories;
 
+use api\dtos\CreateArticleDTO;
 use application_core\domain\entities\article\Article;
 use EntityNotFoundException;
 use infrastructure\repositories\interfaces\ArticleRepositoryInterface;
 use PDO;
+use Ramsey\Uuid\Uuid;
 use Slim\Exception\HttpInternalServerErrorException;
 
 class PDOArticleRepository implements ArticleRepositoryInterface {
@@ -75,5 +77,36 @@ class PDOArticleRepository implements ArticleRepositoryInterface {
             throw new \Exception($e->getMessage(), 400);
         }
         return $articles;
+    }
+
+    public function createArticle(CreateArticleDTO $createArticleDTO): Article{
+        $id = Uuid::uuid4()->toString();
+        try {
+            $stmt = $this->articlePDO->prepare(
+                "INSERT INTO article (id, designation, category, age, state, price, weight) VALUES (:id, :designation, :category, :age, :state, :price, :weight)"
+            );
+            $stmt->execute([
+                'id' => $id,
+                'designation' => $createArticleDTO->designation,
+                'category' => $createArticleDTO->category,
+                'age' => $createArticleDTO->age,
+                'state' => $createArticleDTO->state,
+                'price' => $createArticleDTO->price,
+                'weight' => $createArticleDTO->weight,
+            ]);
+        } catch (HttpInternalServerErrorException) {
+            throw new \Exception("Erreur lors de l'execution de la requete SQL.", 500);
+        } catch(\Throwable) {
+            throw new \Exception("Erreur lors de l'ajout de la transaction'.", 400);
+        }
+        return new Article(
+            $id,
+            $createArticleDTO->designation,
+            $createArticleDTO->category,
+            $createArticleDTO->age,
+            $createArticleDTO->state,
+            $createArticleDTO->price,
+            $createArticleDTO->weight
+        );
     }
 }

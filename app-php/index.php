@@ -3,10 +3,12 @@ session_start();
 
 $realm = "myrealm";
 $clientId = "php-app-client";
-$keycloakBaseUrl = "http://localhost:8080/realms/$realm/protocol/openid-connect";
+// Note: On utilise 'localhost' pour les liens cliqués par l'utilisateur (navigateur)
+// Et 'keycloak' (nom du container) pour les appels cURL internes.
+$keycloakExternalUrl = "http://localhost:8080/realms/$realm/protocol/openid-connect";
 $redirectUri = "http://localhost:8000/index.php";
 
-// 1. Si on reçoit un 'code' de Keycloak, on l'échange contre un Token
+// 1. Échange du code contre un Token
 if (isset($_GET['code'])) {
     $tokenUrl = "http://keycloak:8080/realms/$realm/protocol/openid-connect/token";
     
@@ -21,15 +23,16 @@ if (isset($_GET['code'])) {
 
     $response = curl_exec($ch);
     $_SESSION['token'] = json_decode($response, true);
-    header("Location: $redirectUri"); // On nettoie l'URL
+    header("Location: $redirectUri");
     exit;
 }
 
-// 2. Si on est connecté, on affiche les infos
+// 2. Page d'accueil (Connecté)
 if (isset($_SESSION['token']['access_token'])) {
     $payload = json_decode(base64_decode(explode('.', $_SESSION['token']['access_token'])[1]), true);
     echo "<h1>Bienvenue, " . htmlspecialchars($payload['preferred_username']) . " !</h1>";
-    echo "<p>Tu es connecté via Keycloak et LLDAP.</p>";
+    echo "<p>Identifiant Keycloak : " . $payload['sub'] . "</p>";
+    echo "<p>Email : " . ($payload['email'] ?? 'Non renseigné') . "</p>";
     echo "<a href='?logout=1'>Se déconnecter</a>";
     
     if (isset($_GET['logout'])) {
@@ -39,13 +42,14 @@ if (isset($_SESSION['token']['access_token'])) {
     exit;
 }
 
-// 3. Sinon, on affiche le bouton de connexion
-$authUrl = "$keycloakBaseUrl/auth?" . http_build_query([
+// 3. Page de connexion (Non connecté)
+$authUrl = "$keycloakExternalUrl/auth?" . http_build_query([
     'client_id' => $clientId,
     'redirect_uri' => $redirectUri,
     'response_type' => 'code',
-    'scope' => 'openid'
+    'scope' => 'openid email profile'
 ]);
 
-echo "<h1>Mon App PHP Sécurisée</h1>";
-echo "<a href='$authUrl' style='padding:10px; background:blue; color:white; text-decoration:none;'>Se connecter avec Keycloak</a>";
+echo "<h1>Mon App PHP (Keycloak Natif)</h1>";
+echo "<p>L'inscription est activée sur l'écran de connexion.</p>";
+echo "<a href='$authUrl' style='padding:10px; background:green; color:white; text-decoration:none; border-radius:5px;'>Se connecter ou S'inscrire</a>";

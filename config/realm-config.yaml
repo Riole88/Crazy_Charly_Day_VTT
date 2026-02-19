@@ -1,7 +1,12 @@
 realm: "myrealm"
 enabled: true
+# Configuration pour permettre l'inscription et la gestion du compte
+registrationAllowed: true
+resetPasswordAllowed: true
+rememberMe: true
+verifyEmail: false # Mets à true si tu configures un serveur SMTP
 
-# --- Section Clients (Redirection Standard) ---
+# --- Section Clients (L'application PHP) ---
 clients:
   - clientId: "php-app-client"
     enabled: true
@@ -15,49 +20,3 @@ clients:
       - "http://localhost:8000/*"
     webOrigins:
       - "+"
-
-# --- Section User Federation (LLDAP Read-Only) ---
-components:
-  org.keycloak.storage.UserStorageProvider:
-    - name: "lldap-service"
-      providerId: "ldap"
-      subComponents:
-        org.keycloak.storage.ldap.mappers.LDAPStorageMapper:
-          - name: "email-mapper"
-            providerId: "user-attribute-ldap-mapper"
-            config:
-              ldap.attribute: ["mail"]
-              is.mandatory.in.ldap: ["true"]
-              always.read.value.from.ldap: ["true"]
-              user.model.attribute: ["email"]
-          - name: "last-name-mapper"
-            providerId: "user-attribute-ldap-mapper"
-            config:
-              ldap.attribute: ["sn"]
-              is.mandatory.in.ldap: ["true"]
-              always.read.value.from.ldap: ["true"]
-              user.model.attribute: ["lastName"]
-          - name: "first-name-mapper"
-            providerId: "user-attribute-ldap-mapper"
-            config:
-              ldap.attribute: ["givenName"]
-              is.mandatory.in.ldap: ["true"]
-              always.read.value.from.ldap: ["true"]
-              user.model.attribute: ["firstName"]
-      config:
-        priority: ["0"]
-        editMode: ["READ_ONLY"]
-        syncRegistrations: ["false"]
-        vendor: ["other"]
-        usernameLDAPAttribute: ["uid"]
-        rdnLDAPAttribute: ["uid"]
-        uuidLDAPAttribute: ["entryUUID"]
-        userObjectClasses: ["inetOrgPerson", "organizationalPerson", "person"]
-        connectionUrl: ["ldap://lldap:3890"]
-        usersDn: ["ou=people,dc=example,dc=com"]
-        authType: ["simple"]
-        bindDn: ["uid=admin,ou=people,dc=example,dc=com"]
-        bindCredential: ["admin_password"]
-        pagination: ["true"]
-        useTruststoreSpi: ["ldapsOnly"]
-        connectionTimeout: ["5000"]

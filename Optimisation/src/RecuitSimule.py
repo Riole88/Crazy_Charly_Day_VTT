@@ -60,14 +60,15 @@ def recuit() :
         r= random.random()
         if prob>r :
             state = new_state
-    print("solution : ")
+    string = "solution : \n"
 
     for box in state.boxes :
-        print("box de : ", box.childBelonging.id, ", ", box.childBelonging.age)
+        string += "box de : " + box.childBelonging.id +  ", " +  box.childBelonging.age +"\n"
         for toy in box.toys :
-            print("\t-", toy.id, toy.age, ", ", toy.category, ",", toy.mass, ", ", toy.state)
+            string+="\t-" +  toy.id +  toy.age + ", " +  toy.category+ "," +  str(toy.mass)+ ", " + toy.state + "\n"
 
-    print("score :", e.evaluate(state.boxes))
+    string += "score :" +  str(e.evaluate(state.boxes))+ "\n"
+    return string
 
 
 

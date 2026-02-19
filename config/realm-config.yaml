@@ -1,12 +1,38 @@
 realm: "myrealm"
 enabled: true
-# Configuration pour permettre l'inscription et la gestion du compte
 registrationAllowed: true
 resetPasswordAllowed: true
 rememberMe: true
-verifyEmail: false # Mets à true si tu configures un serveur SMTP
+verifyEmail: true # Active la vérification par mail
+loginWithEmailAllowed: true
 
-# --- Section Clients (L'application PHP) ---
+# --- Configuration SMTP (Nécessaire pour les mails) ---
+# Note: Ces valeurs sont souvent passées par variables d'env dans le docker-compose
+smtpServer:
+  host: "mailpit"
+  port: "1025"
+  from: "admin@monapp.com"
+  fromDisplayName: "Mon App Sécurisée"
+  replyTo: "no-reply@monapp.com"
+  ssl: "false"
+  starttls: "false"
+  auth: "false"
+
+# --- Connexion via Google ---
+# identityProviders:
+#   - alias: "google"
+#     providerId: "google"
+#     enabled: true
+#     trustEmail: true
+#     storeToken: false
+#     addReadTokenRoleOnCreate: false
+#     authenticateByDefault: false
+#     config:
+#       clientId: ""
+#       clientSecret: ""
+#       guiOrder: "1"
+
+# --- Client PHP ---
 clients:
   - clientId: "php-app-client"
     enabled: true

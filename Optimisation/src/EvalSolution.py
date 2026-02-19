@@ -17,7 +17,7 @@ class EvalSolution:
         self.score += self.r8(solution)
         return self.score
 
-    def r1(self, solution) -> int:
+    def r1(self, solution : list[Box]) -> int:
         """
         Unicité des articles
         Chaque article ne peut apparaître que dans une seule box
@@ -27,7 +27,7 @@ class EvalSolution:
         """
         raise NotImplementedError("R1")
 
-    def r2(self, solution) -> int:
+    def r2(self, solution : list[Box]) -> int:
         """
         Compatibilité d’âge
         Un article ne peut être placé dans la box d’un abonné que si
@@ -39,7 +39,7 @@ class EvalSolution:
         """
         raise NotImplementedError("R2")
 
-    def r3(self, solution) -> int:
+    def r3(self, solution : list[Box]) -> int:
         """
         Poids limité
         Le poids total des articles contenus dans une box ne doit pas
@@ -49,7 +49,7 @@ class EvalSolution:
         """
         raise NotImplementedError("R3")
 
-    def r4(self, solution) -> int:
+    def r4(self, solution : list[Box]) -> int:
         """
         Gain par préférence de catégorie
         chaque article placé dans la box d’un abonné
@@ -60,7 +60,7 @@ class EvalSolution:
         """
         raise NotImplementedError("R4")
 
-    def r5(self, solution) -> int:
+    def r5(self, solution : list[Box]) -> int:
         """
         Bonus d’état
         en plus des points de préférence, chaque article apporte un bonus lié à son état
@@ -69,7 +69,7 @@ class EvalSolution:
         """
         raise NotImplementedError("R5")
 
-    def r6(self, solution) -> int:
+    def r6(self, solution : list[Box]) -> int:
         """
         Utilités dégressives
         Pour encourager la variété dans les box, si plusieurs
@@ -80,7 +80,7 @@ class EvalSolution:
         """
         raise NotImplementedError("R6")
 
-    def r7(self, solution) -> int:
+    def r7(self, solution : list[Box]) -> int:
         """
         Tout le monde est servi
         Lorsqu’un abonné participant à la campagne ne reçoit
@@ -90,7 +90,7 @@ class EvalSolution:
         """
         raise NotImplementedError("R7")
 
-    def r8(self, solution) -> int:
+    def r8(self, solution : list[Box]) -> int:
         """
         Equité
         orsqu’un abonné reçoit 2 articles de moins (ou plus) qu’un autre

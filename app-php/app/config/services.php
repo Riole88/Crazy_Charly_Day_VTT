@@ -10,15 +10,22 @@ use application_core\application\usecases\ServiceAuth;
 use application_core\application\usecases\ServiceBox;
 use infrastructure\repositories\interfaces\ArticleRepositoryInterface;
 use infrastructure\repositories\interfaces\BoxRepositoryInterface;
+use infrastructure\repositories\interfaces\UserRepositoryInterface;
 use infrastructure\repositories\KeycloakAuthRepository;
 use infrastructure\repositories\PDOArticleRepository;
 use infrastructure\repositories\PDOBoxRepository;
+use infrastructure\repositories\PDOUserRepository;
 use Psr\Container\ContainerInterface;
 
 return [
     AuthServiceInterface::class => function (ContainerInterface $c) {
         $repo = new KeycloakAuthRepository($c->get('keycloak.config'));
-        return new ServiceAuth($repo);
+        $userRepo = $c->get(UserRepositoryInterface::class);
+        return new ServiceAuth($repo, $userRepo);
+    },
+
+    UserRepositoryInterface::class => function (ContainerInterface $c) {
+        return new PDOUserRepository($c->get("charly.pdo"));
     },
 
     // Ajout explicite de l'Action pour garantir l'injection correcte

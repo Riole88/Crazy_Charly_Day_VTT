@@ -84,7 +84,7 @@ class KeycloakAuthRepository implements AuthServiceInterface
                 ]
             ];
 
-            $this->httpClient->post('http://keycloak:8080/admin/realms/myrealm/users', [
+            $response = $this->httpClient->post('http://keycloak:8080/admin/realms/myrealm/users', [
                 'headers' => [
                     'Authorization' => 'Bearer ' . $adminToken,
                     'Content-Type' => 'application/json'
@@ -92,7 +92,18 @@ class KeycloakAuthRepository implements AuthServiceInterface
                 'json' => $userData
             ]);
             
-            return "Utilisateur créé avec succès";
+            // Extract the User ID from the Location header
+            // The location header is something like: http://keycloak:8080/auth/admin/realms/myrealm/users/f42b8e39-1614-42d4-9d57-8910815467d3
+            $locationHeader = $response->getHeaderLine('Location');
+            if (empty($locationHeader)) {
+                // Determine ID by searching for user if Location header is missing (some versions/configs)
+                throw new \Exception("User created but ID could not be retrieved.");
+            }
+            
+            $pathParts = explode('/', $locationHeader);
+            $userId = end($pathParts);
+            
+            return $userId;
 
         } catch (GuzzleException $e) {
             if ($e instanceof RequestException && $e->hasResponse() && $e->getResponse()->getStatusCode() === 409) {

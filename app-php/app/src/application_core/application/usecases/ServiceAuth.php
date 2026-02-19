@@ -2,14 +2,17 @@
 namespace application_core\application\usecases;
 
 use application_core\application\usecases\interfaces\AuthServiceInterface;
+use infrastructure\repositories\interfaces\UserRepositoryInterface;
 
 class ServiceAuth implements AuthServiceInterface
 {
     private AuthServiceInterface $authRepository;
+    private UserRepositoryInterface $userRepository;
 
-    public function __construct(AuthServiceInterface $authRepository)
+    public function __construct(AuthServiceInterface $authRepository, UserRepositoryInterface $userRepository)
     {
         $this->authRepository = $authRepository;
+        $this->userRepository = $userRepository;
     }
 
     public function authenticate(string $email, string $password): string
@@ -33,6 +36,12 @@ class ServiceAuth implements AuthServiceInterface
              throw new \Exception("Le mot de passe est trop court.");
         }
         
-        return $this->authRepository->register($email, $password, $firstName, $lastName);
+        // Keycloak returns the new User UUID
+        $userId = $this->authRepository->register($email, $password, $firstName, $lastName);
+
+        // Save locally using the same UUID
+        $this->userRepository->createUser($userId, $email, $firstName, $lastName, $password);
+
+        return "Utilisateur créé avec succès (ID: $userId)";
     }
 }

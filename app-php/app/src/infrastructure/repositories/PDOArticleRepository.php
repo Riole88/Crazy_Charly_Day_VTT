@@ -3,6 +3,7 @@
 namespace infrastructure\repositories;
 
 use api\dtos\CreateArticleDTO;
+use api\dtos\ModifyArticleDTO;
 use application_core\domain\entities\article\Article;
 use EntityNotFoundException;
 use infrastructure\repositories\interfaces\ArticleRepositoryInterface;
@@ -108,5 +109,37 @@ class PDOArticleRepository implements ArticleRepositoryInterface {
             $createArticleDTO->price,
             $createArticleDTO->weight
         );
+    }
+    public function modifyArticle(ModifyArticleDTO $modifyArticleDTO): Article{
+        try {
+            $sql = "
+            UPDATE article SET 
+                designation = COALESCE(:designation, designation),
+                category    = COALESCE(:category, category),
+                age         = COALESCE(:age, age),
+                state       = COALESCE(:state, state),
+                price       = COALESCE(:price, price),
+                weight      = COALESCE(:weight, weight)
+            WHERE id = :id";
+
+            $stmt = $this->articlePDO->prepare($sql);
+
+            $stmt->execute([
+                ':id'          => $modifyArticleDTO->id,
+                ':designation' => $modifyArticleDTO->designation,
+                ':category'    => $modifyArticleDTO->category,
+                ':age'         => $modifyArticleDTO->age,
+                ':state'       => $modifyArticleDTO->state,
+                ':price'       => $modifyArticleDTO->price,
+                ':weight'      => $modifyArticleDTO->weight
+            ]);
+
+            $article = $this->getArticle($modifyArticleDTO->id);
+        } catch (HttpInternalServerErrorException) {
+            throw new \Exception("Erreur lors de l'execution de la requete SQL.", 500);
+        } catch(\Throwable) {
+            throw new \Exception("Erreur lors de l'ajout de la transaction'.", 400);
+        }
+        return $article;
     }
 }

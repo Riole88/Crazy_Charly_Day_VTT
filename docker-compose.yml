@@ -1,13 +1,4 @@
 services:
-  mailpit:
-    image: axllent/mailpit
-    container_name: mailpit
-    networks:
-      - auth-network
-    ports:
-      - "8025:8025"
-      - "1025:1025"
-
   adminer:
     image: adminer
     container_name: adminer
@@ -19,6 +10,7 @@ services:
       postgres: { condition: service_healthy }
       charly.db: { condition: service_healthy }
 
+  # --- Base de données pour Keycloak ---
   postgres:
     image: postgres:15
     container_name: postgres-keycloak

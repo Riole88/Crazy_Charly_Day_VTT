@@ -1,4 +1,4 @@
-from src.opti_boxes import Toy, Child
+from opti_boxes import Toy, Child
 
 FICHIER_DONNEES = "../donnees/02_PB_simples/pb3.csv"
 articles = []

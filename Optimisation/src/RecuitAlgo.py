@@ -1,5 +1,5 @@
-from src.Algorithme import Algorithme
-from src.RecuitSimule import recuit
+from Algorithme import Algorithme
+from RecuitSimule import recuit
 
 
 class RecuitAlgo (Algorithme) :

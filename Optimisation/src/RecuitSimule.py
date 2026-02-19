@@ -4,9 +4,9 @@ from pickle import GLOBAL
 import numpy as np
 
 import opti_boxes, EvalSolution as eval, getData as data
-from src.EvalSolution import EvalSolution
+from EvalSolution import EvalSolution
 
-from src.opti_boxes import ProblemState
+from opti_boxes import ProblemState
 
 # Algo :
 state = None

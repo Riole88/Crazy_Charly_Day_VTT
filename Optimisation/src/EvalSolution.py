@@ -12,11 +12,11 @@ class EvalSolution:
         if not self.r1(solution) or not self.r2(solution) or not self.r3(solution):
             return -9999
 
-        self.score += self.r4(solution)
-        self.score += self.r5(solution)
-        self.score += self.r6(solution)
-        self.score += self.r7(solution)
-        self.score += self.r8(solution)
+        self.r4(solution)
+        self.r5(solution)
+        self.r6(solution)
+        self.r7(solution)
+        self.r8(solution)
         return self.score
 
     def r1(self, solution : list[Box]) -> bool:
@@ -67,7 +67,7 @@ class EvalSolution:
 
         return True
 
-    def r4(self, solution : list[Box]) -> int:
+    def r4(self, solution : list[Box]) -> None:
         """
         Gain par préférence de catégorie
         chaque article placé dans la box d’un abonné
@@ -76,9 +76,22 @@ class EvalSolution:
         :param solution: La solution proposée
         :return: Le score de la solution par rapport à cette règle
         """
-        raise NotImplementedError("R4")
+        for box in solution:
+            for toy in box.toys:
+                try:
+                    index = box.childBelonging.preferences.index(toy.category)
+                    match index:
+                        case 0: self.score += 10
+                        case 1: self.score += 8
+                        case 2: self.score += 6
+                        case 3: self.score += 4
+                        case 4: self.score += 2
+                        case 5: self.score += 1
+                        case _: continue
+                except ValueError:
+                    continue
 
-    def r5(self, solution : list[Box]) -> int:
+    def r5(self, solution : list[Box]) -> None:
         """
         Bonus d’état
         en plus des points de préférence, chaque article apporte un bonus lié à son état
@@ -87,7 +100,7 @@ class EvalSolution:
         """
         raise NotImplementedError("R5")
 
-    def r6(self, solution : list[Box]) -> int:
+    def r6(self, solution : list[Box]) -> None:
         """
         Utilités dégressives
         Pour encourager la variété dans les box, si plusieurs
@@ -98,7 +111,7 @@ class EvalSolution:
         """
         raise NotImplementedError("R6")
 
-    def r7(self, solution : list[Box]) -> int:
+    def r7(self, solution : list[Box]) -> None:
         """
         Tout le monde est servi
         Lorsqu’un abonné participant à la campagne ne reçoit
@@ -108,7 +121,7 @@ class EvalSolution:
         """
         raise NotImplementedError("R7")
 
-    def r8(self, solution : list[Box]) -> int:
+    def r8(self, solution : list[Box]) -> None:
         """
         Equité
         orsqu’un abonné reçoit 2 articles de moins (ou plus) qu’un autre

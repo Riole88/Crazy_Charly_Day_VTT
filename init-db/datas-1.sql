@@ -24,6 +24,7 @@ CREATE TABLE users (
     last_name VARCHAR(50),
     first_name VARCHAR(50),
     password VARCHAR(255),
+    role VARCHAR(20) DEFAULT 'user',
     preferences VARCHAR(255)
 );
 

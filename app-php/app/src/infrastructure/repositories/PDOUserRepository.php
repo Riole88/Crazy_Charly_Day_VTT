@@ -15,13 +15,13 @@ class PDOUserRepository implements UserRepositoryInterface
 
     public function createUser(string $id, string $email, string $firstName, string $lastName, string $password): void
     {
-        $stmt = $this->pdo->prepare("INSERT INTO users (id, email, first_name, last_name, password) VALUES (:id, :email, :first_name, :last_name, :password)");
+        $stmt = $this->pdo->prepare("INSERT INTO users (id, email, first_name, last_name, password, role) VALUES (:id, :email, :first_name, :last_name, :password, 'user')");
         $stmt->execute([
             'id' => $id,
             'email' => $email,
             'first_name' => $firstName,
             'last_name' => $lastName,
-            'password' => password_hash($password, PASSWORD_DEFAULT) // Hashing password locally too, though authentication is via Keycloak
+            'password' => password_hash($password, PASSWORD_DEFAULT)
         ]);
     }
 }

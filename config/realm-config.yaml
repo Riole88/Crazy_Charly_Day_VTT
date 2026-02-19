@@ -46,3 +46,23 @@ clients:
       - "http://localhost:8000/*"
     webOrigins:
       - "+"
+
+roles:
+  realm:
+    - name: admin
+      description: "Administrateur du système"
+    - name: user
+      description: "Utilisateur standard"
+
+users:
+  - username: admin
+    email: admin@example.com
+    enabled: true
+    emailVerified: true
+    firstName: Admin
+    lastName: User
+    credentials:
+      - type: password
+        value: admin
+    realmRoles:
+      - admin

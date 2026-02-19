@@ -21,8 +21,8 @@ CREATE TABLE article (
 CREATE TABLE users (
     id UUID PRIMARY KEY,
     email VARCHAR(50),
-    lastName  VARCHAR(50),
-    firstName  VARCHAR(50),
+    last_name VARCHAR(50),
+    first_name VARCHAR(50),
     password VARCHAR(255),
     preferences VARCHAR(255)
 );
@@ -30,23 +30,23 @@ CREATE TABLE users (
 CREATE TABLE box (
     id UUID PRIMARY KEY,
     name VARCHAR(50),
-    totalPrice  DECIMAL(8,2),
-    totalWeight DECIMAL(8,2),
+    total_price  DECIMAL(8,2),
+    total_weight DECIMAL(8,2),
     score DECIMAL(8,0)
 );
 
 CREATE TABLE user2box (
     id UUID PRIMARY KEY,
-    idUser UUID,
-    idBox UUID,
-    FOREIGN KEY (idUser) REFERENCES users(id) ON DELETE SET NULL,
-    FOREIGN KEY (idBox) REFERENCES box(id) ON DELETE SET NULL
+    id_user UUID,
+    id_box UUID,
+    FOREIGN KEY (id_user) REFERENCES users(id) ON DELETE SET NULL,
+    FOREIGN KEY (id_box) REFERENCES box(id) ON DELETE SET NULL
 );
 
 CREATE TABLE article2box (
     id UUID PRIMARY KEY,
-    idArticle UUID,
-    idBox UUID,
-    FOREIGN KEY (idArticle) REFERENCES article(id) ON DELETE SET NULL,
-    FOREIGN KEY (idBox) REFERENCES box(id) ON DELETE SET NULL
+    id_article UUID,
+    id_box UUID,
+    FOREIGN KEY (id_article) REFERENCES article(id) ON DELETE SET NULL,
+    FOREIGN KEY (id_box) REFERENCES box(id) ON DELETE SET NULL
 );

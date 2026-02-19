@@ -1,64 +1,108 @@
 services:
-  # --- Base de données pour Keycloak ---
+  mailpit:
+    image: axllent/mailpit
+    container_name: mailpit
+    networks:
+      - auth-network
+    ports:
+      - "8025:8025"
+      - "1025:1025"
+
+  adminer:
+    image: adminer
+    container_name: adminer
+    ports:
+      - '8081:8080'
+    networks:
+      - auth-network
+    depends_on:
+      postgres: { condition: service_healthy }
+      charly.db: { condition: service_healthy }
+
   postgres:
     image: postgres:15
-    container_name: postgres
+    container_name: postgres-keycloak
+    env_file: charly.env
     networks:
       - auth-network
     environment:
-      POSTGRES_DB: keycloak
-      POSTGRES_USER: keycloak
-      POSTGRES_PASSWORD: password
+      - POSTGRES_DB=${KC_DB_NAME:-keycloak}
+      - POSTGRES_USER=${KC_DB_USER:-keycloak}
+      - POSTGRES_PASSWORD=${KC_DB_PASS:-password}
+    ports:
+      - "${KC_DB_PORT_EXTERNAL:-5433}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U keycloak"]
-      interval: 5s
-      timeout: 5s
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 3s
+      timeout: 3s
       retries: 5
 
-  # --- Keycloak ---
+  charly.db:
+    image: postgres:latest
+    container_name: postgres-app
+    env_file: charly.env
+    ports:
+      - "${APP_DB_PORT_EXTERNAL:-5432}:5432"
+    networks:
+      - auth-network
+    environment:
+      - POSTGRES_DB=${APP_DB_NAME:-charly}
+      - POSTGRES_USER=${APP_DB_USER:-charly}
+      - POSTGRES_PASSWORD=${APP_DB_PASS:-test}
+    volumes:
+      - ./init-db:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 3s
+      timeout: 3s
+      retries: 5
+
   keycloak:
     image: quay.io/keycloak/keycloak:latest
     container_name: keycloak
+    env_file: charly.env
     networks:
       - auth-network
-    command: start-dev --http-enabled=true
+    command: start-dev --http-enabled=true --hostname-strict=false
     ports:
       - "8080:8080"
     environment:
-      - KC_BOOTSTRAP_ADMIN_USERNAME=admin
-      - KC_BOOTSTRAP_ADMIN_PASSWORD=admin
+      - KC_BOOTSTRAP_ADMIN_USERNAME=${KC_BOOTSTRAP_ADMIN_USERNAME:-admin}
+      - KC_BOOTSTRAP_ADMIN_PASSWORD=${KC_BOOTSTRAP_ADMIN_PASSWORD:-admin}
       - KC_DB=postgres
-      - KC_DB_URL=jdbc:postgresql://postgres:5432/keycloak
-      - KC_DB_USERNAME=keycloak
-      - KC_DB_PASSWORD=password
-      - KC_HOSTNAME_STRICT=false
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/health/live"]
-      interval: 5s
-      timeout: 5s
-      retries: 20
+      - KC_DB_URL=jdbc:postgresql://postgres:5432/${KC_DB_NAME:-keycloak}
+      - KC_DB_USERNAME=${KC_DB_USER:-keycloak}
+      - KC_DB_PASSWORD=${KC_DB_PASS:-password}
+      - KC_HEALTH_ENABLED=true
     depends_on:
       postgres:
         condition: service_healthy
+    healthcheck:
+          # On demande à Keycloak son propre état de santé via son interface CLI interne
+          test: ["CMD", "/opt/keycloak/bin/kcadm.sh", "config", "credentials", "--server", "http://localhost:8080", "--realm", "master", "--user", "${KC_BOOTSTRAP_ADMIN_USERNAME:-admin}", "--password", "${KC_BOOTSTRAP_ADMIN_PASSWORD:-admin}"]
+          # OU encore plus simple pour juste vérifier que le port répond :
+          # test: ["CMD-SHELL", "timeout 1s bash -c ':> /dev/tcp/127.0.0.1/8080' || exit 1"]
+          interval: 10s
+          timeout: 5s
+          retries: 5
 
-  # --- Import automatique de la config ---
   keycloak-config-cli:
     image: adorsys/keycloak-config-cli:latest
     container_name: keycloak-config-cli
+    env_file: charly.env
     networks:
       - auth-network
     environment:
       - KEYCLOAK_URL=http://keycloak:8080
-      - KEYCLOAK_USER=admin
-      - KEYCLOAK_PASSWORD=admin
+      - KEYCLOAK_USER=${KC_BOOTSTRAP_ADMIN_USERNAME:-admin}
+      - KEYCLOAK_PASSWORD=${KC_BOOTSTRAP_ADMIN_PASSWORD:-admin}
       - IMPORT_FILES_LOCATIONS=/config/realm-config.yaml
     volumes:
       - ./config:/config:ro
     depends_on:
-      keycloak:
-        condition: service_healthy
+      - keycloak
 
   # --- Service Front ---
   front-charly:
@@ -91,32 +135,6 @@ services:
     depends_on:
       - charly.db
     command: sh -c "composer install && php -S 0.0.0.0:80 -t /var/php/public"
-
-
-
-
-
-  charly.db:
-    image: 'postgres:latest'
-    env_file: ./charly.env
-    ports:
-      - '5432:5432'
-    networks:
-      - auth-network
-    volumes:
-      - ./init-db:/docker-entrypoint-initdb.d
-
-  #
-  # service administration des bases sql
-  #
-  adminer:
-    image: adminer
-    ports:
-      - '8081:8080'
-    networks:
-      - auth-network
-
-
 
 
 

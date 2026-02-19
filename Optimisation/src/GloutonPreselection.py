@@ -1,26 +1,23 @@
-import opti_boxes as opt_box, getData as data
-from EvalSolution import EvalSolution as eval
+import opti_boxes as opt_box
 from Algorithme import Algorithme
-
-listBB = []
-listPE = []
-listEN = []
-listAD = []
-listToyBB = []
-listToyPE = []
-listToyEN = []
-listToyAD = []
-listBoxBB = []
-listBoxPE = []
-listBoxEN = []
-listBoxAD = []
-
-EVAL = eval()
+from csvData import CsvData
 
 class GloutonPreselection(Algorithme):
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self,  articles : list, abonnes : list, massMax : list):
+        super().__init__(articles, abonnes, massMax)
+        self.listBB = []
+        self.listPE = []
+        self.listEN = []
+        self.listAD = []
+        self.listToyBB = []
+        self.listToyPE = []
+        self.listToyEN = []
+        self.listToyAD = []
+        self.listBoxBB = []
+        self.listBoxPE = []
+        self.listBoxEN = []
+        self.listBoxAD = []
     
     def run(self) -> str:
         return self.main()
@@ -32,7 +29,7 @@ class GloutonPreselection(Algorithme):
         for toy in listToy:
             if userBox.canAddToBox(toy):
                 userBox.addToBox(toy)
-                note = EVAL.evaluate(listBox)
+                note = self.eval.evaluate(listBox)
                 userBox.delFromBox(toy)
                 if note>max:
                     max=note
@@ -59,43 +56,38 @@ class GloutonPreselection(Algorithme):
                 listToy.remove(toy)
 
     def main(self) -> str:
-        data.get_data()
-        listAbonnes = data.getAbonnes()
-        listArticles = data.getArticles()
-        massMax = data.getMassMax()
-
-        for child in listAbonnes:
+        for child in self.abonnes:
             match child.age:
-                case "BB": listBB.append(child)
-                case "PE": listPE.append(child)
-                case "EN": listEN.append(child)
-                case "AD": listAD.append(child)
+                case "BB": self.listBB.append(child)
+                case "PE": self.listPE.append(child)
+                case "EN": self.listEN.append(child)
+                case "AD": self.listAD.append(child)
 
-        for toy in listArticles:
+        for toy in self.articles:
             match toy.age:
-                case "BB": listToyBB.append(toy)
-                case "PE": listToyPE.append(toy)
-                case "EN": listToyEN.append(toy)
-                case "AD": listToyAD.append(toy)
+                case "BB": self.listToyBB.append(toy)
+                case "PE": self.listToyPE.append(toy)
+                case "EN": self.listToyEN.append(toy)
+                case "AD": self.listToyAD.append(toy)
 
-        for child in listBB:
-            box = opt_box.Box(child, massMax)
-            listBoxBB.append(box)
-        for child in listPE:
-            box = opt_box.Box(child, massMax)
-            listBoxPE.append(box)
-        for child in listEN:
-            box = opt_box.Box(child, massMax)
-            listBoxEN.append(box)
-        for child in listAD:
-            box = opt_box.Box(child, massMax)
-            listBoxAD.append(box)
+        for child in self.listBB:
+            box = opt_box.Box(child, self.massMax)
+            self.listBoxBB.append(box)
+        for child in self.listPE:
+            box = opt_box.Box(child, self.massMax)
+            self.listBoxPE.append(box)
+        for child in self.listEN:
+            box = opt_box.Box(child, self.massMax)
+            self.listBoxEN.append(box)
+        for child in self.listAD:
+            box = opt_box.Box(child, self.massMax)
+            self.listBoxAD.append(box)
 
         pairs = [
-        (listToyBB, listBB),
-        (listToyPE, listPE),
-        (listToyEN, listEN),
-        (listToyAD, listAD),
+        (self.listToyBB, self.listBB),
+        (self.listToyPE, self.listPE),
+        (self.listToyEN, self.listEN),
+        (self.listToyAD, self.listAD),
         ]
 
         listValMax = []
@@ -106,20 +98,23 @@ class GloutonPreselection(Algorithme):
         maxbox = int(1 + min(listValMax)) if listValMax else 0
 
         for i in range(maxbox):
-            if(len(listBB)!=0): self.buildBoxes(listBB, listToyBB, listBoxBB)
-            if(len(listPE)!=0): self.buildBoxes(listPE, listToyPE, listBoxPE)
-            if(len(listEN)!=0): self.buildBoxes(listEN, listToyEN, listBoxEN)
-            if(len(listAD)!=0): self.buildBoxes(listAD, listToyAD, listBoxAD)
+            if len(self.listBB)!=0: self.buildBoxes(self.listBB, self.listToyBB, self.listBoxBB)
+            if len(self.listPE)!=0: self.buildBoxes(self.listPE, self.listToyPE, self.listBoxPE)
+            if len(self.listEN)!=0: self.buildBoxes(self.listEN, self.listToyEN, self.listBoxEN)
+            if len(self.listAD)!=0: self.buildBoxes(self.listAD, self.listToyAD, self.listBoxAD)
 
         
-        listBox=listBoxBB+listBoxPE+listBoxEN+listBoxAD
-        res : str = str(EVAL.evaluate(listBox)) + "\n"
+        listBox=self.listBoxBB+self.listBoxPE+self.listBoxEN+self.listBoxAD
+        res : str = str(self.eval.evaluate(listBox)) + "\n"
 
         for box in listBox :
             for toy in box.toys :
                 res += box.childBelonging.id+ ";"+ toy.id+ ";"+ toy.category+ ";"+ toy.age+ ";"+ toy.state+"\n"
 
+        print("score: ", self.eval.evaluate(listBox))
         return res
 
 if __name__ == "__main__" :
-    print(GloutonPreselection().run())
+    csvData = CsvData()
+    csvData.readData("../donnees/02_pb_simples/pb3.csv")
+    print(GloutonPreselection(csvData.articles, csvData.abonnes, csvData.massMax).run())

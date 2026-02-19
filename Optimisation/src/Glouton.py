@@ -1,22 +1,18 @@
-from opti_boxes import Box, Toy, ProblemState, Child
-import getData
-from EvalSolution import EvalSolution
+from csvData import CsvData
+from opti_boxes import Box, ProblemState
 from src.Algorithme import Algorithme
 
-EVAL = EvalSolution()
+class AlgoGlouton(Algorithme):
 
-class AlgoUCS(Algorithme):
-
-    def __init__(self):
-        super().__init__()
+    def __init__(self,  articles : list, abonnes : list, massMax : list):
+        super().__init__(articles, abonnes, massMax)
 
     def run(self) -> str:
         return self.main()
 
     def resolve_problem(self, problem : ProblemState) -> ProblemState :
         possibleActions = problem.getPossibleActions()
-        scoreMax : int = EVAL.evaluate(problem.boxes)
-        EVAL.reset_score()
+        scoreMax : int = self.eval.evaluate(problem.boxes)
         bestState : ProblemState = problem
 
         #print("boxes length : ", len(bestState.boxes))
@@ -24,8 +20,7 @@ class AlgoUCS(Algorithme):
         for action in possibleActions :
             newLists = problem.doAction(action[0], action[1])
             newState = ProblemState(newLists[0], newLists[1])
-            score : int = EVAL.evaluate(newState.boxes)
-            EVAL.reset_score()
+            score : int = self.eval.evaluate(newState.boxes)
             #print("boxes : ", newState.boxes)
             #print("boxes length : ", len(newState.boxes))
             if score >= scoreMax:
@@ -37,33 +32,24 @@ class AlgoUCS(Algorithme):
 
 
     def main(self) -> str:
-
-        d = getData
-        d.get_data()
-        abonnes = d.getAbonnes()
-        articles = d.getArticles()
-        massMax = d.getMassMax()
-        print(massMax)
+        print(self.massMax)
 
         listBoxes : list[Box] = []
 
-        for abonne in abonnes :
-            listBoxes.append(Box(abonne, massMax))
+        for abonne in self.abonnes :
+            listBoxes.append(Box(abonne, self.massMax))
 
-        problemToSolve : ProblemState = ProblemState(listBoxes, articles)
+        problemToSolve : ProblemState = ProblemState(listBoxes, self.articles)
 
         solution : ProblemState = self.resolve_problem(problemToSolve)
 
-        eval : EvalSolution = EvalSolution()
-
         oldScore : int = -999999
-        newScore : int =eval.evaluate(solution.boxes)
+        newScore : int = self.eval.evaluate(solution.boxes)
 
         while oldScore != newScore :
             oldScore = newScore
-            eval.reset_score()
             solution = self.resolve_problem(solution)
-            newScore = eval.evaluate(solution.boxes)
+            newScore = self.eval.evaluate(solution.boxes)
 
         res : str = str(newScore) + "\n"
 
@@ -75,4 +61,6 @@ class AlgoUCS(Algorithme):
 
 
 if __name__ == "__main__" :
-    print(AlgoUCS().run())
+    csvData = CsvData()
+    csvData.readData("../donnees/02_pb_simples/pb3.csv")
+    print(AlgoGlouton(csvData.articles, csvData.abonnes, csvData.massMax).run())

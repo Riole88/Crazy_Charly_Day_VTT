@@ -1,0 +1,46 @@
+<?php
+
+namespace api\dtos;
+
+class ModifyArticleDTO{
+    private string $id;
+    private ?string $designation;
+    private ?string $category;
+    private ?string $age;
+    private ?string $state;
+    private ?float $price;
+    private ?float $weight;
+
+    public function __construct(
+        string $id,
+        ?string $designation,
+        ?string $category,
+        ?string $age,
+        ?string $state,
+        ?float $price,
+        ?float $weight
+    ) {
+        $this->id = $id;
+        $this->weight = $weight;
+        $this->price = $price;
+        $this->state = $state;
+        $this->age = $age;
+        $this->category = $category;
+        $this->designation = $designation;
+    }
+
+    public function __get(string $name){
+        if(property_exists($this,$name)) {
+            return $this->$name;
+        }
+        throw new \Exception("Propriété '$name' inexistante dans " . __CLASS__);
+    }
+
+    public function __set(string $name, $value) {
+        if (property_exists($this, $name)) {
+            $this->$name = $value;
+            return;
+        }
+        throw new \Exception("Propriété '$name' inexistante dans " . __CLASS__);
+    }
+}

@@ -7,5 +7,6 @@ use api\dtos\CreateArticleDTO;
 
 interface ServiceArticleInterface {
     public function getArticle(string $id): ArticleDTO;
+    public function getArticles(): array;
     public function createArticle(CreateArticleDTO $createArticleDTO): ArticleDTO;
 }

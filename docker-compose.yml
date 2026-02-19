@@ -67,7 +67,7 @@ services:
       - '48210:5173'
     volumes:
       - ./front.charly:/app
-      - front-node_modules:/app/node_modules  # Volume isolé = node_modules Linux, pas de réinstall
+      - front-node_modules:/app/node_modules 
     working_dir: /app
     networks:
       - auth-network
@@ -78,18 +78,47 @@ services:
 
   # --- Application PHP ---
   php-app:
-    image: php:8.2-cli
-    container_name: php-app
+    build:
+      context: build
+      dockerfile: 8.4-cli.Dockerfile
+    ports:
+      - '8000:80'
+    volumes:
+      - ./app-php/app:/var/php
+    working_dir: /var/php
     networks:
       - auth-network
-    ports:
-      - "8000:8000"
-    volumes:
-      - ./app-php:/app
-    working_dir: /app
-    command: php -S 0.0.0.0:8000
     depends_on:
-      - keycloak
+      - charly.db
+    command: sh -c "composer install && php -S 0.0.0.0:80 -t /var/php/public"
+
+
+
+
+
+  charly.db:
+    image: 'postgres:latest'
+    env_file: ./charly.env
+    ports:
+      - '5432:5432'
+    networks:
+      - auth-network
+    volumes:
+      - ./init-db:/docker-entrypoint-initdb.d
+
+  #
+  # service administration des bases sql
+  #
+  adminer:
+    image: adminer
+    ports:
+      - '8081:8080'
+    networks:
+      - auth-network
+
+
+
+
 
 networks:
   auth-network:

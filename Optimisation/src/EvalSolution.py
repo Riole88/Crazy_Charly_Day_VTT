@@ -112,6 +112,7 @@ class EvalSolution:
         :param solution: La solution proposée
         :return: Le score de la solution par rapport à cette règle
         """
+        # TODO: Vérifier si ça fonctionne
         count_category = {
             "SOC": 0,
             "FIG": 0,
@@ -158,6 +159,7 @@ class EvalSolution:
         :param solution: La solution proposée
         :return: Le score de la solution proposée par rapport à cette règle
         """
+        # TODO: Vérifier si ça fonctionne
         for box in solution:
             for box2 in solution:
                 if box != box2 and abs(len(box.toys) - len(box2.toys)) >= 2:

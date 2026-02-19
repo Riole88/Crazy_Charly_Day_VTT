@@ -126,7 +126,7 @@ class EvalSolution:
             "LIV": 0
         }
         for box in solution:
-            count_category.clear()
+            clear_dict(count_category)
             for toy in box.toys:
                 count_category[toy.category] += 1
 
@@ -169,3 +169,8 @@ class EvalSolution:
                 if box != box2 and abs(len(box.toys) - len(box2.toys)) >= 2:
                     self.score -= 10
                     break
+
+
+def clear_dict(target_dict : dict) :
+    for key in target_dict.keys() :
+        target_dict[key] = 0

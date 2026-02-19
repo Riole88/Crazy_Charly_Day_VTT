@@ -1,7 +1,4 @@
-from collections import Counter
-
 from opti_boxes import Box, Child
-
 
 class EvalSolution:
 
@@ -115,7 +112,29 @@ class EvalSolution:
         :param solution: La solution proposée
         :return: Le score de la solution par rapport à cette règle
         """
-        raise NotImplementedError("R6")
+        count_category = {
+            "SOC": 0,
+            "FIG": 0,
+            "CON": 0,
+            "EXT": 0,
+            "EVL": 0,
+            "LIV": 0
+        }
+        for box in solution:
+            count_category.clear()
+            for toy in box.toys:
+                count_category[toy.category] += 1
+
+            for cat, count in count_category.items():
+                if count > 1:
+                    index = box.childBelonging.preferences.index(cat) + count - 1
+                    match index:
+                        case 1: self.score += 8
+                        case 2: self.score += 6
+                        case 3: self.score += 4
+                        case 4: self.score += 2
+                        case _: self.score += 1
+
 
     def r7(self, solution : list[Box]) -> None:
         """

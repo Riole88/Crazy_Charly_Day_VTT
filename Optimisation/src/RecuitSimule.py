@@ -34,7 +34,7 @@ class RecuitSimule(Algorithme):
 
         e = EvalSolution()
         while T > 1 :
-            print(T)
+            # print(T)
             new_state = self.neighbour()
             e = EvalSolution()
             score1 = e.evaluate(self.state.boxes)
@@ -44,14 +44,18 @@ class RecuitSimule(Algorithme):
             r= random.random()
             if prob>r :
                 self.state = new_state
-        string = "solution : \n"
 
+        self.bestScore = e.evaluate(self.state.boxes)
+        string : str = f"{self.bestScore}\n"
         for box in self.state.boxes :
-            string += "box de : " + box.childBelonging.id +  ", " +  box.childBelonging.age +"\n"
-            for toy in box.toys :
-                string+="\t-" +  toy.id +  toy.age + ", " +  toy.category+ "," +  str(toy.mass)+ ", " + toy.state + "\n"
+            string += f"{box.childBelonging.id};"
 
-        string += "score :" +  str(e.evaluate(self.state.boxes))+ "\n"
+            for toy in box.toys :
+                string += f"{toy.category};{toy.age};{toy.state}"
+            string += "\n"
+
+        print("Recuit - score: ", self.bestScore)
+
         return string
 
 

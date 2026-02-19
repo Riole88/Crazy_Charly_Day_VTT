@@ -24,7 +24,7 @@ class AlgoGlouton(Algorithme):
             #print("boxes : ", newState.boxes)
             #print("boxes length : ", len(newState.boxes))
             if score >= scoreMax:
-                print("score : ", score)
+                # print("score : ", score)
                 scoreMax = score
                 bestState = newState
 
@@ -32,7 +32,7 @@ class AlgoGlouton(Algorithme):
 
 
     def main(self) -> str:
-        print(self.massMax)
+        # print(self.massMax)
 
         listBoxes : list[Box] = []
 
@@ -54,8 +54,14 @@ class AlgoGlouton(Algorithme):
         res : str = str(newScore) + "\n"
 
         for box in solution.boxes :
+            res += f"{box.childBelonging.id};"
+
             for toy in box.toys :
-                res += box.childBelonging.id+ ";"+ toy.id+ ";"+ toy.category+ ";"+ toy.age+ ";"+ toy.state+"\n"
+                res += f"{toy.category};{toy.age};{toy.state}"
+            res += "\n"
+
+        self.bestScore = newScore
+        print("Glouton - score: ", self.bestScore)
 
         return res
 

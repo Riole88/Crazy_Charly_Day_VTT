@@ -105,13 +105,17 @@ class GloutonPreselection(Algorithme):
 
         
         listBox=self.listBoxBB+self.listBoxPE+self.listBoxEN+self.listBoxAD
-        res : str = str(self.eval.evaluate(listBox)) + "\n"
+        self.bestScore = self.eval.evaluate(listBox)
+        res : str = str(self.bestScore) + "\n"
 
         for box in listBox :
-            for toy in box.toys :
-                res += box.childBelonging.id+ ";"+ toy.id+ ";"+ toy.category+ ";"+ toy.age+ ";"+ toy.state+"\n"
+            res += f"{box.childBelonging.id};"
 
-        print("score: ", self.eval.evaluate(listBox))
+            for toy in box.toys :
+                res += f"{toy.category};{toy.age};{toy.state}"
+            res += "\n"
+
+        print("Glouton avec préselection - score: ", self.bestScore)
         return res
 
 if __name__ == "__main__" :

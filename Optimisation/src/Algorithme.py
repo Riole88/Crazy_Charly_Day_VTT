@@ -10,6 +10,7 @@ class Algorithme(ABC):
         self.abonnes = abonnes
         self.massMax = massMax
         self.eval = EvalSolution()
+        self.bestScore = 0
 
     @abstractmethod
     def run(self) -> str:

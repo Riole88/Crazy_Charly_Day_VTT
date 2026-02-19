@@ -40,6 +40,11 @@ class Box() :
         self.totalMass += toy.mass
         self.totalPrice += toy.price
 
+    def delFromBox(self, toy : Toy) :
+        self.toys.remove(toy)
+        self.totalMass -= toy.mass
+        self.totalPrice -= toy.price
+
 class ProblemState():
 
     def __init__(self, boxes : list[Box], toys : list[Toy]):

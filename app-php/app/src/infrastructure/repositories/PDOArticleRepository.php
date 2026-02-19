@@ -5,7 +5,7 @@ namespace infrastructure\repositories;
 use api\dtos\CreateArticleDTO;
 use api\dtos\ModifyArticleDTO;
 use application_core\domain\entities\article\Article;
-use EntityNotFoundException;
+use application_core\exceptions\EntityNotFoundException;
 use infrastructure\repositories\interfaces\ArticleRepositoryInterface;
 use PDO;
 use Ramsey\Uuid\Uuid;

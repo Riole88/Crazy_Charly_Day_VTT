@@ -5,6 +5,7 @@ namespace application_core\application\usecases;
 
 
 use api\dtos\ArticleDTO;
+use api\dtos\CreateArticleDTO;
 use application_core\application\usecases\interfaces\ServiceArticleInterface;
 use EntityNotFoundException;
 use infrastructure\repositories\interfaces\ArticleRepositoryInterface;
@@ -39,5 +40,14 @@ class ServiceArticle implements ServiceArticleInterface {
             price: $article->price,
             weight: $article->weight,
         );
+    }
+
+    public function createArticle(CreateArticleDTO $createArticleDTO): ArticleDTO{
+        try {
+            $article = $this->articleRepository->createArticle($createArticleDTO);
+        } catch (\Exception $e) {
+            throw new \Exception($e->getMessage(), $e->getCode());
+        }
+        return $this->toDTO($article);
     }
 }

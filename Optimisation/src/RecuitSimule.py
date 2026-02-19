@@ -1,9 +1,15 @@
 import random
+from pickle import GLOBAL
+
+import numpy as np
 
 import opti_boxes, EvalSolution as eval, getData as data
-from src.main import articles
+from src.EvalSolution import EvalSolution
+
+from src.opti_boxes import ProblemState
 
 # Algo :
+state = None
 listBB = []
 listPE = []
 listEN = []
@@ -26,82 +32,127 @@ def initialisationProbleme() :
 
     #Récupérer les listes de tous les utilisateurs
     for child in listAbonnes:
-        match child.age:
-            case "BB": listBB.append(child)
-            case "PE": listPE.append(child)
-            case "EN": listEN.append(child)
-            case "AD": listAD.append(child)
+        box = opti_boxes.Box(child,massMax)
+        listBoxes.append(box)
 
-    for toy in listArticles:
-        match toy.age:
-            case "BB": listToyBB.append(toy)
-            case "PE": listToyPE.append(toy)
-            case "EN": listToyEN.append(toy)
-            case "AD": listToyAD.append(toy)
-
-    for child in listBB:
-        box = opti_boxes.Box(child, massMax)
-        listBoxBB.append(box)
-    for child in listPE:
-        box = opti_boxes.Box(child, massMax)
-        listBoxPE.append(box)
-    for child in listEN:
-        box = opti_boxes.Box(child, massMax)
-        listBoxEN.append(box)
-    for child in listAD:
-        box = opti_boxes.Box(child, massMax)
-        listBoxAD.append(box)
-    listBoxes.append(listBoxAD)
-    listBoxes.append(listBoxEN)
-    listBoxes.append(listBoxPE)
-    listBoxes.append(listBoxBB)
+    global state
+    state = ProblemState(listBoxes,listArticles)
 
 
-def recuit(solutionInitiale) :
-    T = 10
 
-
-def switchArticle() :
+def recuit() :
     initialisationProbleme()
+    global state
 
-    size = len(listBoxes)
-    r = random.randint(0,size)
-    r2 = random.randint(0,size)
-    while r2 == r :
-        r2 = random.randint(0,size)
-    size1 = len(listBoxes[r].toys)
-    size2 = len(listBoxes[r2].toys)
-    r3 = random.randint(0,size1)
-    r4 = random.randint(0,size2)
-    toy1 = listBoxes[r].toys[r3]
-    listBoxes[r].delFromBox(toy1)
-    toy2 = listBoxes[r2].toys[r4]
-    listBoxes[r2].delFromBox(toy2)
+    T = 50
+    gamma = 0.995
 
-    if listBoxes[r].canAddToBox(toy2) :
-        listBoxes[r].addToBox(toy2)
-    else :
-        articles.append(toy2)
-    if listBoxes[r2].canAddToBox(toy1) :
-        listBoxes[r2].addToBox(toy1)
-    else :
-        articles.append(toy1)
+    compteur = 0
+    e = EvalSolution()
+    while T > 1 :
+        print(T)
+        new_state = neighbour(state,T,20)
+        e = EvalSolution()
+        score1 = e.evaluate(state.boxes)
+        score2 = e.evaluate(new_state.boxes)
+        prob = accept_probability(score1,score2,T)
+        T = T*gamma
+        r= random.random()
+        if prob>r :
+            state = new_state
+    print("solution : ")
 
-def addArticle() :
-    toy = None
-    if len(articles) != 0 :
-        r = random.randint(0,len(articles))
-        toy = articles[r]
-    rAbonne = random.randint(0,len(listBoxes))
-    if listBoxes[rAbonne].canAddToBox(toy) :
-        listBoxes[rAbonne].addToBox(toy)
-        articles.remove(toy)
-def delArticle() :
-    size = len(listBoxes)
-    r = random.randint(0,size)
-    size2 = len(listBoxes[r].toys)
-    r2 = random.randint(0,size2)
-    toy = listBoxes[r].toys[r2]
-    listBoxes[r].delFromBox(toy)
+    for box in state.boxes :
+        print("box de : ", box.childBelonging.id, ", ", box.childBelonging.age)
+        for toy in box.toys :
+            print("\t-", toy.id, toy.age, ", ", toy.category, ",", toy.mass, ", ", toy.state)
+
+    print("score :", e.evaluate(state.boxes))
+
+
+
+def neighbour(state, T, maxT):
+    weights=[33,33,33]
+    listOperator = []
+    newState = ProblemState(opti_boxes.copy_boxes(state.boxes),opti_boxes.copy_toys(state.toys))
+
+    dim = len(listBoxes)
+
+    factor = 5
+
+    nbr_operations = random.randint(1, 3)
+    for _ in range(nbr_operations) :
+        operator_choice = random.choices([0,1,2], weights=weights)[0]
+        if operator_choice == 0:
+            newState = switchArticle(newState)
+        elif operator_choice == 1:
+            newState = addArticle(newState)
+        else:
+            newState = delArticle(newState)
+        listOperator.append(newState)
+
+    return newState
+
+def accept_probability(old_score, new_score, temperature):
+    if new_score > old_score:
+        return 1.0
+    else:
+        # The smaller the temperature, the smaller the probability of acceptance
+        return np.exp((new_score - old_score) / temperature) # between 0 and 1
+
+def switchArticle(state):
+    non_empty_boxes = [box for box in state.boxes if len(box.toys) > 0]
+
+    if len(non_empty_boxes) < 2:
+        return state
+
+    box1 = random.choice(non_empty_boxes)
+    box2 = random.choice(non_empty_boxes)
+
+    while box2 == box1:
+        box2 = random.choice(non_empty_boxes)
+
+    toy1 = random.choice(box1.toys)
+    toy2 = random.choice(box2.toys)
+
+    if box1.canAddToBox(toy2) and box2.canAddToBox(toy1):
+        box1.delFromBox(toy1)
+        box2.delFromBox(toy2)
+
+        box1.addToBox(toy2)
+        box2.addToBox(toy1)
+
+
+    return state
+
+
+def addArticle(state):
+    if len(state.toys) == 0 or len(state.boxes) == 0:
+        return state
+
+    toy = random.choice(state.toys)
+    box = random.choice(state.boxes)
+
+    if box.canAddToBox(toy):
+        box.addToBox(toy)
+        state.toys.remove(toy)
+
+    return state
+
+def delArticle(state):
+
+    non_empty_boxes = [box for box in state.boxes if len(box.toys) > 0]
+
+    if not non_empty_boxes:
+        return state
+
+    box = random.choice(non_empty_boxes)
+    toy = random.choice(box.toys)
+
+    box.delFromBox(toy)
+    state.toys.append(toy)
+
+    return state
+
 
 

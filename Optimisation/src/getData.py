@@ -22,7 +22,7 @@ def get_data ():
             if ligne != "\n" :
                 match selector :
                     case 0 :
-                        article = Toy(l[0],int(l[6]),int(l[5]),l[2],l[3])
+                        article = Toy(l[0],int(l[6]),int(l[5]),l[2],l[3], l[4])
                         articles.append(article)
                     case 1 :
                         preferences =l[3].split(",")

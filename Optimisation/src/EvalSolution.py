@@ -1,6 +1,6 @@
 from collections import Counter
 
-from opti_boxes import Box
+from opti_boxes import Box, Child
 
 
 class EvalSolution:
@@ -9,9 +9,8 @@ class EvalSolution:
         self.score : int = 0
 
     def evaluate(self, solution : list[Box]) -> int:
-        if not self.r1(solution):
+        if not self.r1(solution) or not self.r2(solution):
             return -9999
-        self.score += self.r2(solution)
         self.score += self.r3(solution)
         self.score += self.r4(solution)
         self.score += self.r5(solution)
@@ -37,7 +36,7 @@ class EvalSolution:
 
         return True
 
-    def r2(self, solution : list[Box]) -> int:
+    def r2(self, solution : list[Box]) -> bool:
         """
         Compatibilité d’âge
         Un article ne peut être placé dans la box d’un abonné que si
@@ -47,7 +46,12 @@ class EvalSolution:
         :param solution: La solution proposée
         :return: Le score de la solution par rapport à cette règle
         """
-        raise NotImplementedError("R2")
+        for box in solution:
+            for toy in box.toys:
+                if not box.childBelonging.belongsToAge(toy.age):
+                    return False
+
+        return True
 
     def r3(self, solution : list[Box]) -> int:
         """

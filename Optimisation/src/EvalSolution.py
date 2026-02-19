@@ -6,11 +6,8 @@ class EvalSolution:
     def __init__(self):
         self.score : int = 0
 
-    def reset_score(self):
-        self.score = 0
-
     def evaluate(self, solution : list[Box]) -> int:
-        self.score=0
+        self.score = 0
         if not self.r1(solution) or not self.r2(solution) or not self.r3(solution):
             return -9999
 

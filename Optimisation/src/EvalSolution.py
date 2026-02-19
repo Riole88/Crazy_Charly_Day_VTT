@@ -1,3 +1,5 @@
+from collections import Counter
+
 from opti_boxes import Box
 
 
@@ -7,7 +9,8 @@ class EvalSolution:
         self.score : int = 0
 
     def evaluate(self, solution : list[Box]) -> int:
-        self.score += self.r1(solution)
+        if not self.r1(solution):
+            return -9999
         self.score += self.r2(solution)
         self.score += self.r3(solution)
         self.score += self.r4(solution)
@@ -17,15 +20,22 @@ class EvalSolution:
         self.score += self.r8(solution)
         return self.score
 
-    def r1(self, solution : list[Box]) -> int:
+    def r1(self, solution : list[Box]) -> bool:
         """
         Unicité des articles
         Chaque article ne peut apparaître que dans une seule box
         au plus. Tous les articles ne sont pas forcément utilisés.
         :param solution: La solution proposée
-        :return: Le score de la solution par rapport à cette règle
+        :return: True si la solution est valide, False sinon
         """
-        raise NotImplementedError("R1")
+        duplicates = set()
+        for box in solution:
+            for toy in box.toys:
+                if toy in duplicates:
+                    return False
+                duplicates.add(toy)
+
+        return True
 
     def r2(self, solution : list[Box]) -> int:
         """

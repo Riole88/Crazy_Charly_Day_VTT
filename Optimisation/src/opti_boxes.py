@@ -17,12 +17,14 @@ class Toy():
         self.category = category
         self.age = age
 
-    
+    def __hash__(self):
+        return hash(self.id)
+
 
 class Box() :
 
     def __init__(self, child : Child, maximumMass : int):
-        self.toys = []
+        self.toys : list[Toy] = []
         self.totalMass = 0
         self.totalPrice = 0
         self.childBelonging = child

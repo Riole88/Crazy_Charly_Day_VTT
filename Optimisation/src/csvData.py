@@ -39,7 +39,7 @@ class CsvData:
                             self.articles.append(article)
                         case 1:
                             preferences = l[3].split(",")
-                            abonne = Child(l[0], l[2], preferences)
+                            abonne = Child(l[1], l[2], preferences)
                             self.abonnes.append(abonne)
                         case 2:
                             self.massMax = int(ligne)

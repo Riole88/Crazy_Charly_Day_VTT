@@ -6,7 +6,7 @@ class EvalSolution:
     def __init__(self):
         self.score : int = 0
 
-    def evaluate(self, solution : list[Box]) -> int:
+    def evaluate(self, solution : list[Box], useExtensions : bool = False) -> int:
         self.score = 0
         if not self.r1(solution) or not self.r2(solution) or not self.r3(solution):
             return -9999
@@ -16,6 +16,10 @@ class EvalSolution:
         self.r6(solution)
         self.r7(solution)
         self.r8(solution)
+
+        if useExtensions :
+            self.r9(solution)
+
         return self.score
 
     @staticmethod
@@ -170,6 +174,20 @@ class EvalSolution:
                 if box != box2 and abs(len(box.toys) - len(box2.toys)) >= 2:
                     self.score -= 10
                     break
+
+    def r9(self, solution : list[Box]) -> None:
+        """
+        Calibrage en prix
+        En plus du poids maximum, la composition doit respecter une
+        fourchette de prix cible [Pmin, Pmax] par box. Si le prix total d’une box est en dehors de
+        cette fourchette, un malus de -5 est appliqué.
+        :param solution: La solution proposée
+        :return: Le score de la solution proposée par rapport à cette règle
+        """
+        for box in solution:
+            if not (box.minimumPrice < box.totalPrice < box.maximumPrice):
+                self.score -= 5
+
 
 
 def clear_dict(target_dict : dict) :

@@ -1,4 +1,4 @@
-class Child() :
+class Child:
 
     def __init__(self, id:str, age : str, preferences : list[str]):
         self.id = id
@@ -8,7 +8,7 @@ class Child() :
     def belongsToAge(self, ageToCheck:str) -> bool:
         return ageToCheck == self.age
     
-class Toy():
+class Toy:
 
     def __init__(self, id : str, mass: int, price : int, category : str, age : str, state:str):
         self.id = id
@@ -22,14 +22,16 @@ class Toy():
         return hash(self.id)
 
 
-class Box() :
+class Box:
 
-    def __init__(self, child : Child, maximumMass : int):
+    def __init__(self, child : Child, maximumMass : int, minimumPrice : int = 0, maximumPrice : int = 99999999):
         self.toys : list[Toy] = []
         self.totalMass = 0
         self.totalPrice = 0
         self.childBelonging = child
         self.maximumMass = maximumMass
+        self.minimumPrice = minimumPrice
+        self.maximumPrice = maximumPrice
 
     def canAddToBox(self, toy : Toy) -> bool:
         return toy.mass+self.totalMass <= self.maximumMass and self.childBelonging.belongsToAge(toy.age)
@@ -50,7 +52,7 @@ class Box() :
         self.totalMass -= toy.mass
         self.totalPrice -= toy.price
 
-class ProblemState():
+class ProblemState:
 
     def __init__(self, boxes : list[Box], toys : list[Toy]):
         self.boxes = boxes

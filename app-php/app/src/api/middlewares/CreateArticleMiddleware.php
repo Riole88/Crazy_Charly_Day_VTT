@@ -3,7 +3,6 @@
 namespace api\middlewares;
 
 use api\dtos\CreateArticleDTO;
-use api\dtos\InputTransactionDTO;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;

@@ -42,6 +42,9 @@ __screenshots__/
 #Environnement
 *.env
 
-#Backend
-*vendor
-*composer.lock
+#Autre
+vendor/
+*.lock
+
+#Vendor
+vendor

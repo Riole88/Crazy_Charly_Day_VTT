@@ -1,4 +1,5 @@
-from opti_boxes import Box, Child
+from opti_boxes import Box
+
 
 class EvalSolution:
 
@@ -16,7 +17,8 @@ class EvalSolution:
         self.r8(solution)
         return self.score
 
-    def r1(self, solution : list[Box]) -> bool:
+    @staticmethod
+    def r1(solution : list[Box]) -> bool:
         """
         Unicité des articles
         Chaque article ne peut apparaître que dans une seule box
@@ -33,7 +35,8 @@ class EvalSolution:
 
         return True
 
-    def r2(self, solution : list[Box]) -> bool:
+    @staticmethod
+    def r2(solution : list[Box]) -> bool:
         """
         Compatibilité d’âge
         Un article ne peut être placé dans la box d’un abonné que si
@@ -50,7 +53,8 @@ class EvalSolution:
 
         return True
 
-    def r3(self, solution : list[Box]) -> bool:
+    @staticmethod
+    def r3(solution : list[Box]) -> bool:
         """
         Poids limité
         Le poids total des articles contenus dans une box ne doit pas

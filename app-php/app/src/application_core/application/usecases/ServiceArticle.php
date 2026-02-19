@@ -28,6 +28,17 @@ class ServiceArticle implements ServiceArticleInterface {
         return $this->toDTO($article);
     }
 
+    public function getArticles(): array
+    {
+        try {
+            $articles = $this->articleRepository->getArticles();
+        } catch (\Exception $e) {
+            throw new \Exception($e->getMessage(), $e->getCode());
+        }
+        return array_map(fn ($art) => $this->toDTO($art), $articles);
+    }
+
+
     private function toDTO($article): ArticleDTO
     {
         return new ArticleDTO(

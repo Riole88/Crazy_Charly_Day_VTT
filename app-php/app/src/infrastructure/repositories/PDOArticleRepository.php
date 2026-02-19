@@ -49,4 +49,31 @@ class PDOArticleRepository implements ArticleRepositoryInterface {
             throw new \Exception($e->getMessage(), 400);
         }
     }
+
+    public function getArticles(): array
+    {
+        try {
+            $stmt = $this->articlePDO->prepare(
+                "SELECT id, designation, category, age, state, price, weight FROM article"
+            );
+            $stmt->execute();
+            $articles = [];
+            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                $articles[] = new Article(
+                    id: $row['id'],
+                    designation: $row['designation'],
+                    category: $row['category'],
+                    age: $row['age'],
+                    state: $row['state'],
+                    price: $row['price'],
+                    weight: $row['weight']
+                );
+            }
+        } catch(HttpInternalServerErrorException) {
+            throw new \Exception("Erreur lors de l'exécution de la requête SQL.", 500);
+        } catch(\Throwable $e) {
+            throw new \Exception($e->getMessage(), 400);
+        }
+        return $articles;
+    }
 }

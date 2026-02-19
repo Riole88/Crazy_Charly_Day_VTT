@@ -10,6 +10,7 @@ class EvalSolution:
         self.score = 0
 
     def evaluate(self, solution : list[Box]) -> int:
+        self.score=0
         if not self.r1(solution) or not self.r2(solution) or not self.r3(solution):
             return -9999
 

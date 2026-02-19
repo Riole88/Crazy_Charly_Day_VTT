@@ -1,6 +1,7 @@
 class Child() :
 
-    def __init__(self, age : str, preferences : list[str]):
+    def __init__(self, id:str, age : str, preferences : list[str]):
+        self.id = id
         self.age = age
         self.preferences = preferences
 
@@ -9,7 +10,8 @@ class Child() :
     
 class Toy():
 
-    def __init__(self, mass: int, price : int, category : str, age : str):
+    def __init__(self, id : str, mass: int, price : int, category : str, age : str):
+        self.id = id
         self.mass = mass
         self.price = price
         self.category = category
@@ -34,3 +36,9 @@ class Box() :
         self.toys.append(toy)
         self.totalMass += toy.mass
         self.totalPrice += toy.price
+
+class ProblemState():
+
+    def __init__(self, boxes : list[Box], toys : list[Toy]):
+        self.boxes = boxes
+        self.toys = toys

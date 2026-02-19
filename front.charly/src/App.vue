@@ -5,6 +5,7 @@
     <RouterLink to="/home" class="brand">Crazy Charly Day</RouterLink>
     <div class="links">
       <RouterLink to="/home">Accueil</RouterLink>
+      <RouterLink to="/articles">Catalogue</RouterLink>
       <RouterLink to="/register">S'inscrire</RouterLink>
       <RouterLink to="/login">Connexion</RouterLink>
     </div>

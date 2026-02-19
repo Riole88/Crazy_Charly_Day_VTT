@@ -117,6 +117,7 @@ services:
     build:
       context: build
       dockerfile: 8.4-cli.Dockerfile
+    env_file: charly.env
     ports:
       - '8000:80'
     volumes:

@@ -1,0 +1,18 @@
+{
+  "realm": "myrealm",
+  "enabled": true,
+  "clients": [
+    {
+      "clientId": "php-app-client",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": true,
+      "rootUrl": "https://TON-URL-FRONT-CLOUD-RUN.a.run.app",
+      "baseUrl": "/",
+      "redirectUris": ["https://TON-URL-FRONT-CLOUD-RUN.a.run.app/*"],
+      "webOrigins": ["+"]
+    }
+  ]
+}

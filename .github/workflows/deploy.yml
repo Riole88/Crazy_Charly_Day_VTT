@@ -1,0 +1,60 @@
+name: Build and Push All Images to GCP
+
+on:
+  push:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  PROJECT_ID: project-28d5f176-6eec-4cb0-a0c
+  REGION: europe-west1
+  REPOSITORY: charly-repo
+  # Remplace par ton numéro de projet et le nom de ton pool/provider
+  WIF_PROVIDER: projects/NUMBER/locations/global/workloadIdentityPools/mon-pool-id/providers/mon-provider-id
+  SA_EMAIL: github-deployer@project-28d5f176-6eec-4cb0-a0c.iam.gserviceaccount.com
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 1. Authentification WIF
+      - id: 'auth'
+        name: 'Authenticate to Google Cloud'
+        uses: 'google-github-actions/auth@v2'
+        with:
+          workload_identity_provider: ${{ env.WIF_PROVIDER }}
+          service_account: ${{ env.SA_EMAIL }}
+
+      # 2. Config Docker
+      - name: Configure Docker
+        run: gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev --quiet
+
+      # 3. Build & Push : API PHP
+      - name: Build & Push PHP API
+        run: |
+          docker build -t ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/php-api:${{ github.sha }} \
+                       -t ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/php-api:latest \
+                       -f deploiement/build/8.4-cli.Dockerfile .
+          docker push ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/php-api --all-tags
+
+      # 4. Build & Push : Front-end
+      - name: Build & Push Front App
+        run: |
+          docker build -t ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/front-app:${{ github.sha }} \
+                       -t ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/front-app:latest \
+                       -f deploiement/build/front.Dockerfile .
+          docker push ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/front-app --all-tags
+
+      # 5. Build & Push : Keycloak
+      - name: Build & Push Keycloak
+        run: |
+          docker build -t ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/keycloak:${{ github.sha }} \
+                       -t ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/keycloak:latest \
+                       -f deploiement/build/keycloak.Dockerfile .
+          docker push ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/keycloak --all-tags

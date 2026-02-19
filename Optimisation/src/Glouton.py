@@ -17,7 +17,7 @@ class AlgoGlouton(Algorithme):
 
         #print("boxes length : ", len(bestState.boxes))
 
-        for action in possible_actions :
+        for action in possibleActions :
             newLists = problem.doAction(action[0], action[1])
             newState = ProblemState(newLists[0], newLists[1])
             score : int = self.eval.evaluate(newState.boxes)
@@ -28,7 +28,7 @@ class AlgoGlouton(Algorithme):
                 scoreMax = score
                 bestState = newState
 
-        return best_state
+        return bestState
 
 
     def main(self) -> str:

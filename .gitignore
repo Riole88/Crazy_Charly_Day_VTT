@@ -41,3 +41,7 @@ __screenshots__/
 
 #Environnement
 *.env
+
+#Autre
+vendor/
+*.lock

@@ -1,0 +1,106 @@
+services:
+  # --- Base de données Application ---
+  charly.db:
+    image: postgres:15-alpine
+    container_name: postgres-app
+    restart: always
+    env_file: charly.env
+    networks:
+      - auth-network
+    environment:
+      - POSTGRES_DB=${APP_DB_NAME}
+      - POSTGRES_USER=${APP_DB_USER}
+      - POSTGRES_PASSWORD=${APP_DB_PASS}
+    volumes:
+      - postgres_app_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # --- Base de données Keycloak ---
+  postgres-kc:
+    image: postgres:15-alpine
+    container_name: postgres-keycloak
+    restart: always
+    env_file: charly.env
+    networks:
+      - auth-network
+    environment:
+      - POSTGRES_DB=${KC_DB_NAME}
+      - POSTGRES_USER=${KC_DB_USER}
+      - POSTGRES_PASSWORD=${KC_DB_PASS}
+    volumes:
+      - postgres_keycloak_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # --- Keycloak (Mode Production) ---
+  keycloak:
+    build:
+      context: .
+      dockerfile: build/keycloak.Dockerfile
+    container_name: keycloak
+    restart: always
+    env_file: charly.env
+    networks:
+      - auth-network
+    ports:
+      - "8080:8080" # Port d'accès à l'interface Admin
+    environment:
+      - KC_BOOTSTRAP_ADMIN_USERNAME=${KC_BOOTSTRAP_ADMIN_USERNAME}
+      - KC_BOOTSTRAP_ADMIN_PASSWORD=${KC_BOOTSTRAP_ADMIN_PASSWORD}
+      - KC_DB=postgres
+      - KC_DB_URL=jdbc:postgresql://postgres-kc:5432/${KC_DB_NAME}
+      - KC_DB_USERNAME=${KC_DB_USER}
+      - KC_DB_PASSWORD=${KC_DB_PASS}
+      - KC_HOSTNAME_STRICT=false # Permet l'accès via localhost en prod (attention en prod réelle)
+      - KC_HTTP_ENABLED=true
+      - KC_PROXY=edge
+    depends_on:
+      postgres-kc:
+        condition: service_healthy
+
+  # --- API PHP ---
+  php-app:
+    build:
+      context: .
+      dockerfile: build/8.4-cli.Dockerfile
+    container_name: php-api
+    restart: always
+    networks:
+      - auth-network
+    depends_on:
+      charly.db:
+        condition: service_healthy
+    env_file: charly.env
+    environment:
+      - APP_ENV=prod
+      - DATABASE_URL=postgresql://${APP_DB_USER}:${APP_DB_PASS}@charly.db:5432/${APP_DB_NAME}
+      - KEYCLOAK_URL=${KC_URL}
+
+  # --- Front-end ---
+  front-charly:
+    build:
+      context: .
+      dockerfile: build/front.Dockerfile
+    container_name: front-app
+    restart: always
+    ports:
+      - '80:8080' # Accès public sur le port 80
+    networks:
+      - auth-network
+    depends_on:
+      - php-app
+
+networks:
+  auth-network:
+    driver: bridge
+
+volumes:
+  postgres_app_data:
+  postgres_keycloak_data:

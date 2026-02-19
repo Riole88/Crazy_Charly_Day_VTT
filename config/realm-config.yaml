@@ -1,23 +1,4 @@
 realm: "myrealm"
-enabled: true
-registrationAllowed: true
-resetPasswordAllowed: true
-rememberMe: true
-verifyEmail: true # Active la vérification par mail
-loginWithEmailAllowed: true
-
-# --- Configuration SMTP (Nécessaire pour les mails) ---
-# Note: Ces valeurs sont souvent passées par variables d'env dans le docker-compose
-smtpServer:
-  host: "mailpit"
-  port: "1025"
-  from: "admin@monapp.com"
-  fromDisplayName: "Mon App Sécurisée"
-  replyTo: "no-reply@monapp.com"
-  ssl: "false"
-  starttls: "false"
-  auth: "false"
-
 # --- Connexion via Google ---
 # identityProviders:
 #   - alias: "google"

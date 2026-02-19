@@ -1,5 +1,5 @@
 services:
-  # --- Base de données PostgreSQL pour Keycloak ---
+  # --- Base de données pour Keycloak ---
   postgres:
     image: postgres:15
     container_name: postgres
@@ -16,22 +16,6 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
-
-  # --- LLDAP (Annuaire exposé) ---
-  lldap:
-    image: lldap/lldap:latest
-    container_name: lldap
-    networks:
-      - auth-network
-    ports:
-      - "3890:3890"    # Port LDAP
-      - "17170:17170"  # Interface Web d'administration
-    environment:
-      - LLDAP_JWT_SECRET=secret_jwt_123
-      - LLDAP_LDAP_USER_PASS=admin_password
-      - LLDAP_LDAP_BASE_DN=dc=example,dc=com
-    volumes:
-      - lldap_data:/data
 
   # --- Keycloak ---
   keycloak:
@@ -59,7 +43,7 @@ services:
       postgres:
         condition: service_healthy
 
-  # --- Keycloak Config CLI ---
+  # --- Import automatique de la config ---
   keycloak-config-cli:
     image: adorsys/keycloak-config-cli:latest
     container_name: keycloak-config-cli
@@ -70,17 +54,13 @@ services:
       - KEYCLOAK_USER=admin
       - KEYCLOAK_PASSWORD=admin
       - IMPORT_FILES_LOCATIONS=/config/realm-config.yaml
-      - LOGGING_LEVEL_DE_ADORSYS=DEBUG
-      - WAIT_TIME_OUT=120s
-      - KEYCLOAK_REALM=master
-      - KEYCLOAK_CLIENTID=admin-cli
     volumes:
       - ./config:/config:ro
     depends_on:
       keycloak:
         condition: service_healthy
 
-  # --- Application PHP de test ---
+  # --- Application PHP ---
   php-app:
     image: php:8.2-cli
     container_name: php-app
@@ -101,4 +81,3 @@ networks:
 
 volumes:
   postgres_data:
-  lldap_data:

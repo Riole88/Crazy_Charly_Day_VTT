@@ -8,6 +8,13 @@ return [
     'logs.dir' => __DIR__ . '/../var/logs',
     'db.config' => __DIR__ . '/.env',
 
+    // Keycloak
+    'keycloak.config' => [
+        'auth_url' => 'http://keycloak:8080/realms/myrealm/protocol/openid-connect/token',
+        'client_id' => 'php-app-client',
+        'client_secret' => '', // Client public défini dans realm-config.yaml
+    ],
+
     // infra
      'charly.pdo' => function (ContainerInterface $c) {
         $config = parse_ini_file($c->get('db.config'));

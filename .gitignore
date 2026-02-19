@@ -45,3 +45,6 @@ __screenshots__/
 #Autre
 vendor/
 *.lock
+
+#Vendor
+vendor

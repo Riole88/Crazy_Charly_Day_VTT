@@ -144,7 +144,10 @@ class EvalSolution:
         :param solution: La solution proposée
         :return: le score de la solution par rapport à cette règle
         """
-        raise NotImplementedError("R7")
+        for box in solution:
+            if len(box.toys) == 0:
+                self.score -= 10
+
 
     def r8(self, solution : list[Box]) -> None:
         """

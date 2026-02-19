@@ -67,14 +67,13 @@ services:
       - '48210:5173'
     volumes:
       - ./front.charly:/app
-      # - front-node_modules:/app/node_modules
+      - front-node_modules:/app/node_modules  # Volume isolé = node_modules Linux, pas de réinstall
     working_dir: /app
     networks:
       - auth-network
     depends_on:
       - php-app
-    command: >
-      sh -c "rm -rf node_modules package-lock.json && npm install && npm run dev -- --host 0.0.0.0"
+    command: sh -c "npm install && npm run dev"
     restart: unless-stopped
 
   # --- Application PHP ---
@@ -98,4 +97,5 @@ networks:
 
 volumes:
   postgres_data:
+  front-node_modules:
   # front-node_modules:

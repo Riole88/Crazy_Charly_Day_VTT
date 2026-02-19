@@ -1,11 +1,47 @@
 <script setup></script>
 
 <template>
-  <h1>You did it!</h1>
-  <p>
-    Visit <a href="https://vuejs.org/" target="_blank" rel="noopener">vuejs.org</a> to read the
-    documentation
-  </p>
+  <nav class="navbar">
+    <RouterLink to="/home" class="brand">Crazy Charly Day</RouterLink>
+    <div class="links">
+      <RouterLink to="/home">Accueil</RouterLink>
+      <RouterLink to="/register">S'inscrire</RouterLink>
+      <RouterLink to="/login">Connexion</RouterLink>
+    </div>
+  </nav>
+
+  <RouterView />
 </template>
 
-<style scoped></style>
+<style scoped>
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 30px;
+  border-bottom: 1px solid #ccc;
+}
+
+.brand {
+  font-weight: bold;
+  font-size: 18px;
+  text-decoration: none;
+  color: #333;
+}
+
+.links {
+  display: flex;
+  gap: 20px;
+}
+
+.links a {
+  text-decoration: none;
+  color: #333;
+  font-size: 15px;
+}
+
+.links a.router-link-active {
+  font-weight: bold;
+  text-decoration: underline;
+}
+</style>

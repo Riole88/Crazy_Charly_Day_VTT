@@ -120,5 +120,5 @@ class GloutonPreselection(Algorithme):
 
 if __name__ == "__main__" :
     csvData = CsvData()
-    csvData.readData("../donnees/02_pb_simples/pb3.csv")
+    csvData.readData("../donnees/02_pb_simples/pb2.csv")
     print(GloutonPreselection(csvData.articles, csvData.abonnes, csvData.massMax).run())

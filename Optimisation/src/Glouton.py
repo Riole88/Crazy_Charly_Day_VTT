@@ -11,22 +11,22 @@ class AlgoGlouton(Algorithme):
         return self.main()
 
     def resolve_problem(self, problem : ProblemState) -> ProblemState :
-        possibleActions = problem.getPossibleActions()
+        possible_actions = problem.getPossibleActions()
         scoreMax : int = self.eval.evaluate(problem.boxes)
-        bestState : ProblemState = problem
+        best_state : ProblemState = problem
 
         #print("boxes length : ", len(bestState.boxes))
 
         for action in possible_actions :
-            newLists = problem.doAction(action[0], action[1])
-            newState = ProblemState(newLists[0], newLists[1])
-            score : int = self.eval.evaluate(newState.boxes)
+            new_lists = problem.doAction(action[0], action[1])
+            new_state = ProblemState(new_lists[0], new_lists[1])
+            score : int = self.eval.evaluate(new_state.boxes)
             #print("boxes : ", newState.boxes)
             #print("boxes length : ", len(newState.boxes))
             if score >= scoreMax:
                 # print("score : ", score)
                 scoreMax = score
-                bestState = newState
+                best_state = new_state
 
         return best_state
 
@@ -68,5 +68,5 @@ class AlgoGlouton(Algorithme):
 
 if __name__ == "__main__" :
     csvData = CsvData()
-    csvData.readData("../donnees/02_pb_simples/pb3.csv")
+    csvData.readData("../donnees/02_pb_simples/pb1.csv")
     print(AlgoGlouton(csvData.articles, csvData.abonnes, csvData.massMax).run())

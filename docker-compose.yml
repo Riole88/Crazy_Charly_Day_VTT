@@ -99,6 +99,7 @@ services:
   # --- Service Front ---
   front-charly:
     image: node:20-alpine
+    env_file: charly.env
     ports:
       - '48210:5173'
     volumes:

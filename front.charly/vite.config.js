@@ -14,11 +14,14 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url))
     },
   },
+  define: {
+    'import.meta.env.VITE_API': JSON.stringify(process.env.VITE_API ?? 'http://localhost:8000'),
+  },
   server: {
     host: '0.0.0.0',
     port: 5173,
     watch: {
-      usePolling: true,  
+      usePolling: true,
       interval: 300,
     },
   },

@@ -32,8 +32,13 @@ class Box() :
         self.maximumMass = maximumMass
 
     def canAddToBox(self, toy : Toy) -> bool:
-        return toy.mass+self.totalMass <= self.totalMass and self.childBelonging.belongsToAge(toy.age)
+        return toy.mass+self.totalMass <= self.maximumMass and self.childBelonging.belongsToAge(toy.age)
 
+    def canAddToBoxCheck(self, toy: Toy):
+        if not toy.mass+self.totalMass <= self.maximumMass:
+            return "mass !"
+        if not self.childBelonging.belongsToAge(toy.age):
+            return "age !"
 
     def addToBox(self, toy : Toy) :
         self.toys.append(toy)
@@ -59,12 +64,28 @@ class ProblemState():
 
     def doAction(self, box : int, toy : int) -> tuple[list[Box], list[Toy]]:
         if not self.boxes[box].canAddToBox(self.toys[toy]):
+            print("yohoho !")
             return ([],[])
-        newBoxes = self.boxes.copy()
-        newToys = self.toys.copy()
+        newBoxes = copy_boxes(self.boxes)
+        newToys = copy_toys(self.toys)
         newBoxes[box].addToBox(newToys[toy])
-        newBoxes.remove(newBoxes[box])
         newToys.remove(newToys[toy])
         return (newBoxes, newToys)
 
+def copy_boxes(boxes : list[Box]) -> list[Box]:
+    res: list[Box] = []
+    for box in boxes:
+        newBox = Box(box.childBelonging, box.maximumMass)
+        newBox.totalMass = box.totalMass
+        newBox.toys = copy_toys(box.toys)
+        newBox.totalPrice = box.totalPrice
+        res.append(newBox)
 
+    return res
+
+def copy_toys(toys : list[Toy]) -> list[Toy]:
+    res : list[Toy] = []
+    for toy in toys :
+        res.append(Toy(toy.id, toy.mass, toy.price, toy.category, toy.age, toy.state))
+
+    return res

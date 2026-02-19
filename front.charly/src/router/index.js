@@ -4,6 +4,7 @@ import Register from '@/views/Register.vue'
 import Articles from '@/views/Articles.vue'
 import ArticleDetail from '@/views/ArticleDetail.vue'
 import CreateArticle from '@/views/CreateArticle.vue'
+import EditArticle from '@/views/EditArticle.vue'
 import { createRouter, createWebHistory } from 'vue-router'
 
 const router = createRouter({
@@ -15,6 +16,7 @@ const router = createRouter({
     { path: '/login', name: 'login', component: Login },
     { path: '/articles', name: 'articles', component: Articles },
     { path: '/articles/create', name: 'article-create', component: CreateArticle },
+    { path: '/articles/:id/edit', name: 'article-edit', component: EditArticle },
     { path: '/articles/:id', name: 'article-detail', component: ArticleDetail },
   ],
 })

@@ -40,7 +40,7 @@ class CorsMiddleware {
 
         return $response
             ->withHeader('Access-Control-Allow-Origin', $allowedOrigin)
-            ->withHeader('Access-Control-Allow-Methods', 'POST, PUT, GET, DELETE, OPTIONS')
+            ->withHeader('Access-Control-Allow-Methods', 'POST, PUT, GET, DELETE, PATCH, OPTIONS')
             ->withHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization')
             ->withHeader('Access-Control-Max-Age', '3600')
             ->withHeader('Access-Control-Allow-Credentials', 'true');

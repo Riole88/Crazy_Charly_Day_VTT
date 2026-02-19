@@ -39,6 +39,8 @@ onMounted(async () => {
       <div class="detail-body">
         <h2>{{ article.designation }}</h2>
 
+        <button class="btn-edit" @click="router.push(`/articles/${route.params.id}/edit`)">Modifier</button>
+
         <table class="info-table">
           <tbody>
             <tr>
@@ -96,6 +98,22 @@ onMounted(async () => {
 
 .btn-retour:hover {
   background: #f5f5f5;
+}
+
+.btn-edit {
+  display: inline-block;
+  margin-bottom: 16px;
+  padding: 8px 14px;
+  background: #333;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.btn-edit:hover {
+  background: #555;
 }
 
 .detail {

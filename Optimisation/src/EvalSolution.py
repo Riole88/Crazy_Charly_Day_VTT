@@ -152,10 +152,14 @@ class EvalSolution:
     def r8(self, solution : list[Box]) -> None:
         """
         Equité
-        orsqu’un abonné reçoit 2 articles de moins (ou plus) qu’un autre
+        Lorsqu’un abonné reçoit 2 articles de moins (ou plus) qu’un autre
         abonné dans la même campagne, la composition subit un malus global de -10 (appliqué
         une seule fois par abonné concerné).
         :param solution: La solution proposée
         :return: Le score de la solution proposée par rapport à cette règle
         """
-        raise NotImplementedError("R8")
+        for box in solution:
+            for box2 in solution:
+                if box != box2 and abs(len(box.toys) - len(box2.toys)) >= 2:
+                    self.score -= 10
+                    break

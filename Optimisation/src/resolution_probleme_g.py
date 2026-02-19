@@ -1,4 +1,4 @@
-from opti_boxes import Box, Toy, ProblemState, Child
+from opti_boxes import Box, ProblemState
 import getData
 from EvalSolution import EvalSolution
 from src.Algorithme import Algorithme
@@ -14,26 +14,24 @@ class AlgoUCS(Algorithme):
         return self.main()
 
     def resolve_problem(self, problem : ProblemState) -> ProblemState :
-        possibleActions = problem.getPossibleActions()
-        scoreMax : int = EVAL.evaluate(problem.boxes)
-        EVAL.reset_score()
-        bestState : ProblemState = problem
+        possible_actions = problem.getPossibleActions()
+        score_max : int = EVAL.evaluate(problem.boxes)
+        best_state : ProblemState = problem
 
         #print("boxes length : ", len(bestState.boxes))
 
-        for action in possibleActions :
+        for action in possible_actions :
             newLists = problem.doAction(action[0], action[1])
             newState = ProblemState(newLists[0], newLists[1])
             score : int = EVAL.evaluate(newState.boxes)
-            EVAL.reset_score()
             #print("boxes : ", newState.boxes)
             #print("boxes length : ", len(newState.boxes))
-            if score >= scoreMax:
+            if score >= score_max:
                 print("score : ", score)
-                scoreMax = score
-                bestState = newState
+                score_max = score
+                best_state = newState
 
-        return bestState
+        return best_state
 
 
     def main(self) -> str:
@@ -61,7 +59,6 @@ class AlgoUCS(Algorithme):
 
         while oldScore != newScore :
             oldScore = newScore
-            eval.reset_score()
             solution = self.resolve_problem(solution)
             newScore = eval.evaluate(solution.boxes)
 

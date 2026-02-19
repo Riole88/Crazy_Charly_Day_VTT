@@ -1,3 +1,7 @@
+
+AGE_CLASSES :list[str] = ["BB","PE","EN","AD"]
+AGE_CLASSES_LENGTH : int = len(AGE_CLASSES)
+
 class Child:
 
     def __init__(self, id:str, age : str, preferences : list[str]):
@@ -7,6 +11,13 @@ class Child:
 
     def belongsToAge(self, ageToCheck:str) -> bool:
         return ageToCheck == self.age
+
+    # IMPORTANT ! cette fonction ne vérifie pas si l'âge est exact
+    # (on considère qu'on le vérifie avant avec la fonction du dessus)
+    def belongsToAgeExtended(self, ageToCheck : str) -> bool:
+        index : int = AGE_CLASSES.index(self.age)
+        indexToCheck : int = AGE_CLASSES.index(ageToCheck)
+        return min(index+1,AGE_CLASSES_LENGTH) == indexToCheck or max(index-1, 0) == indexToCheck
     
 class Toy:
 
